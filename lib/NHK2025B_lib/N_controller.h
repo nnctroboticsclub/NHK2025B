@@ -1,3 +1,11 @@
+/**
+ * @file N_controller.h
+ * @author 高野 絆(takanokiduna@gmail.com)
+ * @version 0.1
+ * @date 2025-05-13
+ * 
+ * @copyright Copyright (c) 2025
+ */
 #ifndef NHK2025B_CONTROLLER_H
 #define NHK2025B_CONTROLLER_H
 

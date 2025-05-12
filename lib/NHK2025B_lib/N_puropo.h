@@ -1,3 +1,11 @@
+/**
+ * @file N_puropo.h
+ * @author 高野 絆(takanokiduna@gmail.com)
+ * @version 0.1
+ * @date 2025-05-13
+ * 
+ * @copyright Copyright (c) 2025
+ */
 #ifndef NHK2025B_PUROPO_H
 #define NHK2025B_PUROPO_H
 
@@ -120,8 +128,8 @@ public:
         printf("|");
         printf("axis:");
         printf("[");
-        for(int i=5;i<=10;i++){
-            printf("%0.2f,", puropo_data.state.axis[i-1]);
+        for(int i=0;i<6;i++){
+            printf("%0.2f,", puropo_data.state.axis[i]);
         }
         printf("]");
 
