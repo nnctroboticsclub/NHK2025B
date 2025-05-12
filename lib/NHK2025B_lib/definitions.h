@@ -22,6 +22,9 @@
 #define NUM_OF_DC_MOTOR 4      // DCモータの数  // takano使います
 #define CAN_FREQUENCY 1e6      // canの周波数。ロボますモータは1 [MHz]だけど、これまで部内のモジュールは50 [kHz]だから気をつけて
 
+#define STEER_MAX_VELOCITY 3.0 // [m/s]
+#define STEER_MAX_RAD M_PI_4 // [rad]
+
 // canの定義
 ikarashiCAN_mk2 can1(pins.CAN1_RD, pins.CAN1_TD, 0, CAN_FREQUENCY);
 ikarashiCAN_mk2 can2(pins.CAN2_RD, pins.CAN2_TD, 0, CAN_FREQUENCY);
