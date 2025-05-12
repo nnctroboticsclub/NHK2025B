@@ -6,6 +6,14 @@
 #include "N_servo.h"
 #include "N_steer.h"
 
+NHK2025B_Puropo puropo;
+
+NHK2025B_Servo servo;
+NHK2025B_Robomas robomas;
+
+NHK2025B_Controller controller;
+
+
 Ticker ticker;
 Thread thread;
 
