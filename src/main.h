@@ -1,3 +1,4 @@
+#define OS_ROBIN_TIMEOUT            5
 #include <mbed.h>
 #include "N_controller.h"
 #include "N_PID.h"
@@ -23,6 +24,7 @@ void update_1ms(){
 
 void send_thread(){
     while(1){
+        
         ThisThread::sleep_for(1ms);
     }
 }
