@@ -1,3 +1,4 @@
+#define OS_ROBIN_TIMEOUT            5
 // メイン
 // #include "main.h"
 

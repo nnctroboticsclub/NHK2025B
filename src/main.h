@@ -1,4 +1,3 @@
-#define OS_ROBIN_TIMEOUT            5
 #include <mbed.h>
 #include "N_controller.h"
 #include "N_PID.h"
