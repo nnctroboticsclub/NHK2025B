@@ -2,6 +2,7 @@
 #include "N_puropo.h"
 #include "N_controller.h"
 
+std::array<ControllerParameter,5> c_params;
 Ticker ticker;
 NHK2025B_Controller controller;
 NHK2025B_Puropo puropo;

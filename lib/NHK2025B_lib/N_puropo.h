@@ -18,6 +18,10 @@
 #define PUROPO_RIGHT_X 1
 #define PUROPO_RIGHT_Y 3 
 
+struct PuropoParameter{
+    // 他に必要なパラメータがあれば追加していって
+};
+
 class NHK2025B_Puropo{
 public:
     /**

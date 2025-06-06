@@ -13,6 +13,10 @@
 #include "N_puropo.h"
 #include "definitions.h"
 
+struct ControllerParameter {
+    // 他に必要なパラメータがあれば追加していって
+};
+
 class NHK2025B_Controller{
 public:
     /**

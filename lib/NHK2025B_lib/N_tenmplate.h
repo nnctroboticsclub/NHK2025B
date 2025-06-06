@@ -1,26 +1,25 @@
 /**
  * @file N_template.h
  * @author 高野 絆(takanokiduna@gmail.com)
- * @brief NHK2025Bのロボマスクラス
+ * @brief NHK2025Bのテンプレートクラス
  * @version 0.1
  * @date 2025-06-06
  * 
  * @copyright Copyright (c) 2025
  */
-#ifndef NHK2025B_ROBOMAS_H
-#define NHK2025B_ROBOMAS_H
+#ifndef NHK2025B_TEMPLATE_H
+#define NHK2025B_TEMPLATE_H
 
 #include <mbed.h>
-#include "definitions.h"
-#include "ikarashiCAN_mk2.h"
+
+#define NUM_OF_PARAM 1 // たいてい definitions.h にある.(NUM_OF_ROBOMASとかNUM_OF_SERVOとか)
 
 typedef struct{
-    int robomas_id = 1;
-    float max_current = 5.0;
-    ikarashiCAN_mk2 *ican;
-}RobomasParameter;
+    int template_int = 10;
+    float template_float = 0.1;
+}TemplateParameter;
 
-class NHK2025B_Robomas{
+class NHK2025B_Template{
 public:
     /**
      * @brief コンストラクタ
@@ -28,7 +27,7 @@ public:
      * @param param パラメータの配列
      * @param num param[]の要素数
      */
-    NHK2025B_Robomas(RobomasParameter param[],int num){
+    NHK2025B_Template(TemplateParameter param[],int num){
         for(int i=0;(i<param_.size()) && (i<num);i++){
             // 配列の0番目から順にデバイス番号0から割り振られていく
             param_[i] = param[i];
@@ -46,10 +45,10 @@ public:
     /**
      * @brief パラメータをセットする
      * 
-     * @param num デバイス番号 (0 <= num < NUM_OF_ROBOMAS)
+     * @param num デバイス番号 (0 <= num < NUM_OF_PARAM)
      * @param param パラメータ
      */
-    void setRobomasParameter(int num,RobomasParameter param)
+    void setTemplateParameter(int num,TemplateParameter param)
     {
         param_[num] = param;
     }
@@ -57,11 +56,11 @@ public:
     /**
      * @brief パラーメータを取得する
      * 
-     * @param num デバイス番号 (0 <= num < NUM_OF_ROBOMAS)
+     * @param num デバイス番号 (0 <= num < NUM_OF_PARAM)
      * 
      * @return パラメータ
      */
-    RobomasParameter getParam(int num)
+    TemplateParameter getParam(int num)
     {
         return param_[num];
     }
@@ -94,7 +93,7 @@ public:
         ;
     }
 private:
-    std::array<RobomasParameter,NUM_OF_ROBOMAS> param_;
+    std::array<TemplateParameter,NUM_OF_PARAM> param_;
 };
 
-#endif // NHK2025B_ROBOMAS_H
+#endif // NHK2025B_TEMPLATE_H
