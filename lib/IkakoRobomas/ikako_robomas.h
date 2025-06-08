@@ -156,6 +156,16 @@ public:
     void read();
 
     /**
+     * @author 高野 絆
+     * @brief canを変更する
+     */
+    void setIcan(ikarashiCAN_mk2 *ican_){
+        ican = ican_;
+        memset(&df_0x200,0,sizeof(data_frame_0x200));
+        memset(&df_0x1FF,0,sizeof(data_frame_0x1FF));
+    }
+    
+    /**
      * @brief モータ全てのパラメータ構造体のポインタをセットする。制御したいモータの数だけ実行する必要がある。
      *
      * @param _motor

@@ -6,6 +6,8 @@ IkakoM3508::IkakoM3508(int _id)
     this->set_params(_id);
 }
 
+IkakoM3508::IkakoM3508(){}
+
 void IkakoM3508::set_params(int _id)
 {
     config.id = _id;

@@ -43,6 +43,22 @@ public:
     }
 
     /**
+     * @brief whileループする
+     */
+    void update()
+    {
+        ;
+    }
+
+    /**
+     * @brief ts間隔(1ms)でループする(重い処理は入れてはならない)
+     */
+    void update_ts()
+    {
+        ;
+    }
+
+    /**
      * @brief パラメータをセットする
      * 
      * @param num デバイス番号 (0 <= num < NUM_OF_PARAM)
@@ -92,6 +108,15 @@ public:
     {
         ;
     }
+
+    /**
+     * @brief デバッグ用関数
+     */
+    void print_debug()
+    {
+        ;
+    }
+
 private:
     std::array<TemplateParameter,NUM_OF_PARAM> param_;
 };

@@ -17,6 +17,7 @@ public:
      * @param _id
      */
     IkakoM2006(int _id);
+    IkakoM2006();
 
     /**
      * @brief パラメータを設定する関数

@@ -1,5 +1,9 @@
 #include "ikako_robomas.h"
 
+void IkakoMotor::set_params(int _id)
+{
+    config.id = _id;
+}
 void IkakoMotor::set_ref(float current)
 {
     current = min(max(current, -config.current_limit), config.current_limit);
