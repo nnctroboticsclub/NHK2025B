@@ -2,14 +2,12 @@
 #include "definitions.h"
 #include "N_robomas.h"
 
-
-std::array<RobomasParameter, NUM_OF_ROBOMAS> params
-{
+std::array<RobomasParameter, NUM_OF_ROBOMAS> params{
     []{RobomasParameter p;
-        p.robomas_id = 1,p.type = RobomasParameter::TYPE_OF_M3508,p.ican_ptr = &can1;
+        p.robomas_id = 3;
     return p;}(),
     []{RobomasParameter p;
-        p.robomas_id = 2,p.type = RobomasParameter::TYPE_OF_M2006,p.ican_ptr = &can1;
+        p.robomas_id = 5,p.type = RobomasParameter::TYPE_OF_M2006,p.ican_ptr = &can2;
     return p;}()
 };
 
@@ -27,7 +25,7 @@ void send_thread()
 }
 
 int cnt_1ms = 0;
-void tick_1ms()
+void update_ts()
 {
     cnt_1ms++;
 }
@@ -40,29 +38,26 @@ void print_debug()
 
 int main()
 {
-    // puts("program start");
     robomas.setup();
-    thread.start([]{
-        while(true){
-            robomas.write();
-            ThisThread::sleep_for(1ms);
-        }
-    });
-    ticker.attach(&tick_1ms,1ms);
-    // puts("robomas setup");
-    int print_cnt = 0;
-    // puts("loop start");
+    thread.start(&send_thread);
+    ticker.attach(&update_ts,1ms);
+    can1.read_start();
+    can2.read_start();
+    int loop_cnt = 0;
     while(1){
         if(cnt_1ms > 100){
-            printf("%f,",cnt_1ms / 100.0f);
+            printf("%.2f,",loop_cnt / 2000.0f);
             print_debug();
             puts("");
-            print_cnt++;
             cnt_1ms = 0;
         }
         for(int i=0;i<2;i++){
-            robomas.setCurrent(i,print_cnt / 100.0);
+            robomas.setCurrent(i,loop_cnt / 2000.0);
         }
+        loop_cnt++;
+        loop_cnt = loop_cnt%10000;
         robomas.update();
+        can1.update();
+        can2.update();
     }
 }

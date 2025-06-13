@@ -2,7 +2,6 @@
 #include "N_puropo.h"
 #include "N_controller.h"
 
-std::array<ControllerParameter,5> c_params;
 Ticker ticker;
 NHK2025B_Controller controller;
 NHK2025B_Puropo puropo;
@@ -31,11 +30,12 @@ int main()
             printf("\n");
         }
 
-        controller.setSteerDirection(puropo.getLeftX());
-        controller.setSteerVelocity(puropo.getLeftY());
-        controller.setSteerTurn(puropo.getRightX());
+        controller.setSteerDirection(puropo.getLeftX(0));
+        controller.setSteerVelocity(puropo.getLeftY(0));
+        controller.setSteerTurn(puropo.getRightX(0));
 
         controller.update();
         puropo.update();
+        puts("return loop");
     }
 }

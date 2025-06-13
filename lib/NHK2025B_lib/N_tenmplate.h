@@ -14,10 +14,11 @@
 
 #define NUM_OF_PARAM 1 // たいてい definitions.h にある.(NUM_OF_ROBOMASとかNUM_OF_SERVOとか)
 
-typedef struct{
+class TemplateParameter{
+public:
     int template_int = 10;
     float template_float = 0.1;
-}TemplateParameter;
+};
 
 class NHK2025B_Template{
 public:
@@ -27,10 +28,10 @@ public:
      * @param param パラメータの配列
      * @param num param[]の要素数
      */
-    NHK2025B_Template(TemplateParameter param[],int num){
-        for(int i=0;(i<param_.size()) && (i<num);i++){
+    NHK2025B_Template(std::array<TemplateParameter,NUM_OF_PARAM> param){
+        for(int i=0;(i<param.size());i++){
             // 配列の0番目から順にデバイス番号0から割り振られていく
-            param_[i] = param[i];
+            template_data[i].parameter = param[i];
         }
     }
 
@@ -66,7 +67,7 @@ public:
      */
     void setTemplateParameter(int num,TemplateParameter param)
     {
-        param_[num] = param;
+        template_data[num].parameter = param;
     }
 
     /**
@@ -78,7 +79,7 @@ public:
      */
     TemplateParameter getParam(int num)
     {
-        return param_[num];
+        return template_data[num].parameter; 
     }
 
     /**
@@ -118,7 +119,15 @@ public:
     }
 
 private:
-    std::array<TemplateParameter,NUM_OF_PARAM> param_;
+    struct{
+        struct{
+            ;
+        }cmd;
+        struct{
+            ;
+        }state;
+        TemplateParameter parameter;
+    }template_data[NUM_OF_PARAM];
 };
 
 #endif // NHK2025B_TEMPLATE_H

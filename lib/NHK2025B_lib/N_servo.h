@@ -6,7 +6,8 @@
 #include "ikarashiCAN_mk2.h"
 #include "can_servo.h"
 
-struct ServoParameter {
+class ServoParameter {
+public:
     int id = 1;
     int board_id = 1;
     ikarashiCAN_mk2* ican = &can1;
@@ -16,25 +17,42 @@ struct ServoParameter {
 
 class NHK2025B_Servo{
 public:
-    NHK2025B_Servo(ServoParameter params[]){
+    NHK2025B_Servo(std::array<ServoParameter, NUM_OF_SERVO> param){
         for(int i=0;i<NUM_OF_SERVO;i++){
-            servo[i] = can_servo(params[i].ican,params[i].board_id);
+            int use_board_id[NUM_OF_SERVO_BOARD];
+            servo_data[i].parameter = param[i];
+            servo[i] = can_servo(servo_data[i].parameter.ican,servo_data[i].parameter.board_id);
         }
     }
     void setup(){
+        cnt = 0;
     }
-    void writeCan1();
-    void writeCan2();
+    void write()
+    {
+        servo[cnt % NUM_OF_SERVO].send();
+        cnt++;
+    }
+    void setAngle(int num, float angle)
+    {
+        servo_data[num].cmd.angle = angle;
+    }
     void update(){
-        servo[0].set(1,100);
+        for(int i=0;i<NUM_OF_SERVO;i++){
+            servo[i].set(servo_data[i].parameter.id,servo_data[i].cmd.angle);
+        }
     }
 private:
-    can_servo servo[NUM_OF_SERVO];
-    typedef struct{
-        ikarashiCAN_mk2 *ican;
-        int board_id;
-        int id;
-    }CanAndBoardIdAndId;
+    std::array<can_servo,NUM_OF_SERVO> servo;
+    struct{
+        struct{
+            float angle;
+        }cmd;
+        struct{
+            ;
+        }state;
+        ServoParameter parameter;
+    }servo_data[NUM_OF_SERVO];
+    int cnt;
 };
 
 #endif // NHK2025B_SERVO_H

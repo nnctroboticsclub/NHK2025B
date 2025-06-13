@@ -5,7 +5,7 @@
 #include "definitions.h"
 #include "ikarashiCAN_mk2.h"
 
-struct IkakoMdcParameter {
+class IkakoMdcParameter {
     int id = 0;
     int board_id = 0;
     ikarashiCAN_mk2* ican = &can1;

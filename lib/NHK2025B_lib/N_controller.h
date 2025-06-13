@@ -13,8 +13,16 @@
 #include "N_puropo.h"
 #include "definitions.h"
 
-struct ControllerParameter {
-    // 他に必要なパラメータがあれば追加していって
+class ControllerParameter {
+public:
+    struct{
+        float max_vel = STEER_MAX_VELOCITY; // 最大速度[m/s]
+        float max_angle = STEER_MAX_RAD; // 最大可動角度[rad]
+        float cw_border = 0.5; // 旋回するかを判定する境界値
+    }steer;
+    struct{
+        float max_effort = ARM_MAX_EFFORT; // 最大握力[N]
+    }arm;
 };
 
 class NHK2025B_Controller{
@@ -22,16 +30,24 @@ public:
     /**
      * @brief コンストラクタ
      */
-    NHK2025B_Controller(){}
+    NHK2025B_Controller(ControllerParameter param=ControllerParameter()){
+        controller_data.parameter = param;
+    }
 
     /**
      * @brief セットアップ
      */
     void setup()
     {
-        controller_data.steer.parameter.cw_border = 0.5;
-        controller_data.steer.parameter.max_vel = STEER_MAX_VELOCITY;
-        controller_data.steer.parameter.max_angle = STEER_MAX_RAD;
+        ;
+    }
+
+    /**
+     * @brief コントローラのパラメータをセットする
+     */
+    void setParameter(ControllerParameter param)
+    {
+        controller_data.parameter = param;
     }
 
     /**
@@ -41,7 +57,7 @@ public:
      */
     void setSteerVelocity(float val)
     {
-        controller_data.steer.cmd.vel = val * controller_data.steer.parameter.max_vel;
+        controller_data.cmd.steer.vel = val * controller_data.parameter.steer.max_vel;
     }
 
     /**
@@ -51,7 +67,7 @@ public:
      */
     void setSteerDirection(float val)
     {
-        controller_data.steer.cmd.dir = val * controller_data.steer.parameter.max_angle;
+        controller_data.cmd.steer.dir = val * controller_data.parameter.steer.max_angle;
     }
 
     /**
@@ -62,8 +78,18 @@ public:
     void setSteerTurn(float val)
     {
         val = 0;
-        controller_data.steer.cmd.turn = (val > controller_data.steer.parameter.cw_border)?1:val;
-        controller_data.steer.cmd.turn = (val < -controller_data.steer.parameter.cw_border)?-1:val;
+        controller_data.cmd.steer.turn = (val > controller_data.parameter.steer.cw_border)?1:val;
+        controller_data.cmd.steer.turn = (val < -controller_data.parameter.steer.cw_border)?-1:val;
+    }
+
+    /**
+     * @brief アームの握力をセットする
+     * 
+     * @param val -1.0 ~ 1.0
+     */
+    void setArmEffort(float val)
+    {
+        controller_data.cmd.arm.effort = val * controller_data.parameter.arm.max_effort;
     }
 
     /**
@@ -72,7 +98,7 @@ public:
      * @return [m/s]
      */
     float getSteerVelocity(){
-        return controller_data.steer.cmd.vel;
+        return controller_data.cmd.steer.vel;
     }
 
     /**
@@ -80,7 +106,7 @@ public:
      */
     float getSteerDirection()
     {
-        return controller_data.steer.cmd.dir;
+        return controller_data.cmd.steer.dir;
     }
 
     /**
@@ -91,27 +117,23 @@ public:
      */
     int getSteerTurn()
     {
-        return controller_data.steer.cmd.turn;
+        return controller_data.cmd.steer.turn;
     }
 
     /**
-     * @brief ステアの最大速度を取得する
-     * 
-     * @return [m/s]
+     * @brief アームの握力を取得する
      */
-    float getSteerMaxVelocity()
+    float getArmEffort()
     {
-        return controller_data.steer.parameter.max_vel;
+        return controller_data.cmd.arm.effort;
     }
 
     /**
-     * @brief ステアの最大可動角度を取得する
-     * 
-     * @return [rad]
+     * @brief コントローラのパラメータを取得する
      */
-    float getSteerMaxAngle()
+    ControllerParameter getParameter()
     {
-        return controller_data.steer.parameter.max_angle;
+        return controller_data.parameter;
     }
 
     /**
@@ -138,17 +160,17 @@ public:
 
         printf("steer{");
         printf("cmd{");
-        printf("vel: %0.2f",controller_data.steer.cmd.vel);
+        printf("vel: %0.2f",controller_data.cmd.steer.vel);
         printf("|");
-        printf("dir: %0.2f",controller_data.steer.cmd.dir);
+        printf("dir: %0.2f",controller_data.cmd.steer.dir);
         printf("|");
-        printf("turn: %c",(controller_data.steer.cmd.turn == 1)?'L':(controller_data.steer.cmd.turn == -1)?'R':'N');
+        printf("turn: %c",(controller_data.cmd.steer.turn == 1)?'L':(controller_data.cmd.steer.turn == -1)?'R':'N');
         printf("}");
         printf("|");
 
         printf("robot{");
         printf("cmd{");
-        printf("es: %d",controller_data.robot.cmd.es);
+        printf("es: %d",controller_data.cmd.robot.es);
         printf("}");
         printf("}");
 
@@ -163,18 +185,15 @@ private:
                 float vel; // turn == 0: 移動速度, turn != 1: 旋回速度
                 float dir; // 移動方向
                 int turn; // -1:右回転, 0:無回転, 1:左回転
-            }cmd;
+            }steer;
             struct{
-                float max_vel; // 最大速度[m/s]
-                float max_angle; // 最大可動角度[rad]
-                float cw_border; // 旋回するかを判定する境界値
-            }parameter;
-        }steer;
-        struct{
+                float effort; // 握力
+            }arm;
             struct{
                 bool es;
-            }cmd;
-        }robot;
+            }robot;
+        }cmd;
+        ControllerParameter parameter;
     }controller_data;
 };
 
