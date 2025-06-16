@@ -30,11 +30,12 @@ int main()
             printf("\n");
         }
 
-        controller.setSteerDirection(puropo.getLeftX());
-        controller.setSteerVelocity(puropo.getLeftY());
-        controller.setSteerTurn(puropo.getRightX());
+        controller.setSteerDirection(puropo.getLeftX(0));
+        controller.setSteerVelocity(puropo.getLeftY(0));
+        controller.setSteerTurn(puropo.getRightX(0));
 
         controller.update();
         puropo.update();
+        puts("return loop");
     }
 }

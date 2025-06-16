@@ -6,6 +6,8 @@ IkakoM2006::IkakoM2006(int _id)
     this->set_params(_id);
 }
 
+IkakoM2006::IkakoM2006(){}
+
 void IkakoM2006::set_params(int _id)
 {
     config.id = _id;

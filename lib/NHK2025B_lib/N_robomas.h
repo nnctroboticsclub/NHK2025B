@@ -1,9 +1,168 @@
+/**
+ * @file N_template.h
+ * @author 高野 絆(takanokiduna@gmail.com)
+ * @brief NHK2025Bのロボマスクラス
+ * @version 0.1
+ * @date 2025-06-06
+ * 
+ * @copyright Copyright (c) 2025
+ */
 #ifndef NHK2025B_ROBOMAS_H
 #define NHK2025B_ROBOMAS_H
 
 #include <mbed.h>
+#include "ikako_m3508.h"
+#include "ikako_m2006.h"
+#include "ikako_robomas.h"
+#include "ikarashiCAN_mk2.h"
+
+#include "definitions.h"
+
+class RobomasParameter{
+public:
+    int robomas_id = 1;
+    float max_current = 5.0;
+    enum{
+        TYPE_OF_M2006,
+        TYPE_OF_M3508
+    }type = TYPE_OF_M3508;
+    ikarashiCAN_mk2 *ican_ptr = &can1;
+};
+
 class NHK2025B_Robomas{
-    ;
+public:
+    /**
+     * @brief コンストラクタ
+     * 
+     * @param param パラメータの配列
+     * @param num param[]の要素数
+     */
+    NHK2025B_Robomas(std::array<RobomasParameter,NUM_OF_ROBOMAS> param={{RobomasParameter()}}) : robomas_sender_{{IkakoRobomasSender(&can1),IkakoRobomasSender(&can2)}}
+    {
+        for(int i=0;i<param.size();i++){
+            // 配列の0番目から順にデバイス番号0から割り振られていく
+            robomas_data[i].parameter = param[i];
+        }
+    }
+
+    /**
+     * @brief セットアップ関数
+     */
+    void setup()
+    {
+        robomas_sender_data.state.use_can1_flag = false;
+        robomas_sender_data.state.use_can2_flag = false;
+        robomas_sender_data.state.write_cnt = 0;
+        for(int i=0;i<NUM_OF_ROBOMAS;i++){
+            int m3508_i=0,m2006_i=0;
+            if(robomas_data[i].parameter.type == robomas_data[i].parameter.TYPE_OF_M3508){
+                m3508[m3508_i].set_params(robomas_data[i].parameter.robomas_id);
+                robomas_[i] = &m3508[m3508_i];
+                m3508_i++;
+            }else if(robomas_data[i].parameter.type == robomas_data[i].parameter.TYPE_OF_M2006){
+                m2006[m2006_i].set_params(robomas_data[i].parameter.robomas_id);
+                robomas_[i] = &m2006[m2006_i];
+                m2006_i++;
+            }
+            if(robomas_data[i].parameter.ican_ptr == &can1){
+                robomas_sender_[0].set_motors(robomas_[i]->get_motor());
+                robomas_sender_data.state.use_can1_flag = true;
+            }else if(robomas_data[i].parameter.ican_ptr == &can2){
+                robomas_sender_[1].set_motors(robomas_[i]->get_motor());
+                robomas_sender_data.state.use_can2_flag = true;
+            }
+        }
+    }
+
+    /**
+     * @brief whileループする
+     */
+    void update()
+    {
+        for(int i=0;i<NUM_OF_ROBOMAS;i++){
+            if(robomas_data[i].parameter.robomas_id != 0){
+                robomas_[i]->set_ref(robomas_data[i].cmd.current);
+            }
+        }
+    }
+
+    /**
+     * @brief ts間隔(1ms)でループする(重い処理は入れてはならない)
+     */
+    void update_ts()
+    {
+        for(int i=0;i<NUM_OF_CAN;i++)
+        {
+            robomas_sender_[i].read();
+        }
+    }
+
+    /**
+     * @brief パラーメータを取得する
+     * 
+     * @param num デバイス番号 (0 <= num < NUM_OF_ROBOMAS)
+     * 
+     * @return パラメータ
+     */
+    RobomasParameter getParam(int num)
+    {
+        return robomas_data[num].parameter;
+    }
+
+    void write()
+    {
+        if(robomas_sender_data.state.use_can1_flag & robomas_sender_data.state.use_can2_flag){
+            robomas_sender_[robomas_sender_data.state.write_cnt % NUM_OF_CAN].write();
+        }else if(robomas_sender_data.state.use_can1_flag){
+            robomas_sender_[0].write();
+        }else{
+            robomas_sender_[1].write();
+        }
+        robomas_sender_data.state.write_cnt++;
+    }
+
+    void setCurrent(int num,float cur)
+    {
+        robomas_data[num].cmd.current = cur;
+    }
+
+
+    /**
+     * @brief デバッグ用関数
+     */
+    void print_debug()
+    {
+        ;
+    }
+
+private:
+    std::array<ikako_robomas_motor_config*, NUM_OF_ROBOMAS> motor_config;
+    std::array<IkakoM3508, NUM_OF_ROBOMAS_M3508> m3508;
+    std::array<IkakoM2006, NUM_OF_ROBOMAS_M2006> m2006;
+    std::array<IkakoMotor*,NUM_OF_ROBOMAS> robomas_;
+    std::array<IkakoRobomasSender,NUM_OF_CAN> robomas_sender_;
+    struct{
+        struct{
+            float current;
+        }cmd;
+        struct{
+            int rev; // 減速後の蓄積回転数[回]
+            float pre_angle; // 前回の減速後の角度[rad]
+            float abs_angle; // 減速後の蓄積した角度[rad]
+            float angle;
+            float vel;
+            float torque; // [N]
+        }state;
+        RobomasParameter parameter;
+    }robomas_data[NUM_OF_ROBOMAS];
+
+    struct{
+        struct{
+            int write_cnt;
+            bool use_can1_flag;
+            bool use_can2_flag;
+        }state;
+    }robomas_sender_data;
 };
 
 #endif // NHK2025B_ROBOMAS_H
