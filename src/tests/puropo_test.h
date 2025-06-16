@@ -18,12 +18,9 @@ void print_debug()
 
 int main()
 {
-    puts("setup start");
     puropo.setup();
-    puts("setup ok");
     ES = 1;
     ticker.attach(&update_1ms,1ms);
-    puts("ticker ok");
     while(true){
         if(cnt_1ms > 100){
             cnt_1ms = 0;

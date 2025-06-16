@@ -1,3 +1,12 @@
+/**
+ * @file K_ikakoMDC.h
+ * @author 高野絆(takanokiduna@gmail.com)
+ * @brief NHK2025BのikakoMDCクラス
+ * @version 0.1
+ * @date 2025-06-16
+ * 
+ * @copyright Copyright (c) 2025
+ */
 #ifndef NHK2025B_N_IKAKO_MDC_H
 #define NHK2025B_N_IKAKO_MDC_H
 
@@ -15,8 +24,6 @@ class IkakoMdcParameter {
 class NHK2025B_IkakoMDC{
 public:
     NHK2025B_IkakoMDC(){}
-    void writeCan1(int board_id);
-    void writeCan2(int board_id);
 private:
 };
 
