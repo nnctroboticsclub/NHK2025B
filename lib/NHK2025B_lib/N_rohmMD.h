@@ -1,5 +1,5 @@
-#ifndef NHK2025B_N_ROHM_MD_H
-#define NHK2025B_N_ROHM_MD_H
+#ifndef NHK2025B_ROHM_MD_H
+#define NHK2025B_ROHM_MD_H
 
 #include <mbed.h>
 #include "rohm_md.h"
@@ -92,4 +92,4 @@ private:
     int cnt = 0;
 };
 
-#endif // NHK2025B_N_ROHM_MD_H
+#endif // NHK2025B_ROHM_MD_H

@@ -23,24 +23,36 @@ class PuropoParameter{
 public:
     PinName tx = pins.PUROPO_TX;
     PinName rx = pins.PUROPO_RX;
+    int timeout = 500; // [ms]
 };
 class NHK2025B_Puropo{
 public:
     /**
      * @brief コンストラクタ
      */
-    NHK2025B_Puropo(std::array<PuropoParameter,NUM_OF_PUROPO> param={{PuropoParameter()}}) : puropo(param[0].tx, param[0].rx)
+    NHK2025B_Puropo(std::array<PuropoParameter,NUM_OF_PUROPO> param={{PuropoParameter()}}) : puropo1(param[0].tx,param[0].rx)
     #if NUM_OF_PUROPO == 2
-    puropo(param[1].tx,param[1].rx)
+    ,Puropo(param[1].tx,param[1].rx)
     #endif 
-    {}
+    {
+        for(int i=0;i<NUM_OF_PUROPO;i++){
+            puropo_data[i].parameter = param[i];
+        }
+        puropo[0] = &puropo1;
+        #if NUM_OF_PUROPO == 2
+        puropo[1] = &puropo2;
+        #endif
+    }
 
     /**
      * @brief セットアップ関数
      */
     void setup()
     {
-        puropo.start();
+        for(int i=0;i<NUM_OF_PUROPO;i++){
+            puropo[i]->start();
+            puropo_data[i].state.timeout = 0;
+        }
     }
 
     /**
@@ -121,16 +133,30 @@ public:
     void update()
     {
         for(int i=0;i<NUM_OF_PUROPO;i++){
-            puropo_data[i].state.communicatable = puropo.is_ok();
-            puropo_data[i].state.left_x = puropo.get(PUROPO_LEFT_X);
-            puropo_data[i].state.left_y = -puropo.get(PUROPO_LEFT_Y);
-            puropo_data[i].state.right_x = -puropo.get(PUROPO_RIGHT_X);
-            puropo_data[i].state.right_y = puropo.get(PUROPO_RIGHT_Y);
-            for(int i=5;i<=10;i++){
-                puropo_data[i].state.axis[i-1] = puropo.get(i);
+            puropo_data[i].state.communicatable = (puropo_data[i].state.timeout < puropo_data[i].parameter.timeout);
+            puropo_data[i].state.left_x = -puropo[i]->get(PUROPO_LEFT_X);
+            puropo_data[i].state.left_y = puropo[i]->get(PUROPO_LEFT_Y);
+            puropo_data[i].state.right_x = -puropo[i]->get(PUROPO_RIGHT_X);
+            puropo_data[i].state.right_y = puropo[i]->get(PUROPO_RIGHT_Y);
+            for(int j=5;j<=10;j++){
+                puropo_data[i].state.axis[j-5] = puropo[i]->get(j);
             }
         }
         
+    }
+
+    /**
+     * @brief ts間隔で処理する関数
+     */
+    void update_ts()
+    {
+        for(int i=0;i<NUM_OF_PUROPO;i++){
+            if(puropo[i]->is_ok()){
+                puropo_data[i].state.timeout = 0;
+            }else{
+                puropo_data[i].state.timeout++;
+            }
+        }
     }
 
     /**
@@ -138,7 +164,6 @@ public:
      */
     void print_debug()
     {
-        int i;
         for(int i=0;i<NUM_OF_PUROPO;i++){
             printf("puropo_data{");
             printf("state{");
@@ -154,8 +179,8 @@ public:
             printf("|");
             printf("axis:");
             printf("[");
-            for(int i=0;i<6;i++){
-                printf("%0.2f,", puropo_data[i].state.axis[i]);
+            for(int j=0;j<6;j++){
+                printf("%0.2f,", puropo_data[i].state.axis[j]);
             }
             printf("]");
     
@@ -165,7 +190,11 @@ public:
         }
     }
 private:
-    Puropo puropo;
+    std::array<Puropo*, NUM_OF_PUROPO> puropo;
+    Puropo puropo1;
+    #if NUM_OF_PUROPO == 2
+    Puropo puropo2;
+    #endif
     struct{
         struct{
             float left_x;
@@ -174,7 +203,9 @@ private:
             float right_y;
             float axis[6];
             bool communicatable = false;
+            int timeout;
         }state;
+        PuropoParameter parameter;
     }puropo_data[NUM_OF_PUROPO];
 };
 
