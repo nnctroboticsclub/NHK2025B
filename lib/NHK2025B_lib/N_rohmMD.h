@@ -9,7 +9,7 @@
 class RohmMdParameter{
 public:
     int id = 1;
-    ikarashiCAN_mk2* ican = &can1;
+    ikarashiCAN_mk2* ican = &can2;
     // 他に必要なパラメータがあれば追加していって
 };
 

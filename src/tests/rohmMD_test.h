@@ -1,6 +1,7 @@
 #include <mbed.h>
 #include "definitions.h"
 #include "N_rohmMD.h"
+#define PI 3.141592653589793
 
 std::array<RohmMdParameter, NUM_OF_ROHM_MD> params
 {
@@ -11,7 +12,7 @@ std::array<RohmMdParameter, NUM_OF_ROHM_MD> params
         p.id = 2;
     return p;}(),
     []{RohmMdParameter p;
-        p.id = 3,p.ican = &can2;
+        p.id = 3;
     return p;}(),
     []{RohmMdParameter p;
         p.id = 4;
@@ -50,19 +51,19 @@ int main()
     ticker.attach(&update_ts,1ms);
     // can1.read_start();
     // can2.read_start();
-    int loop_cnt = 0;
+    double loop_cnt = 0;
     while(1){
         if(cnt_1ms > 100){
-            printf("%.2f,",loop_cnt / 1000.0);
-            print_debug();
+            printf("%.2f,",(sin(loop_cnt) * 2 * PI) / 10);
+            print_debug(); 
+            printf("%d", loop_cnt);
             puts("");
             cnt_1ms = 0;
         }
         for(int i=0;i<4;i++){
-            rohm.setPower(i,loop_cnt / 1000.0);
+            rohm.setPower(i,(sin(loop_cnt) * 2 * PI) / 10);
         }
-        loop_cnt++;
-        loop_cnt = loop_cnt%1000;
+        loop_cnt = loop_cnt + 1e-4;
         rohm.update();
         can1.update();
         can2.update();
