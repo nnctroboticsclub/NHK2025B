@@ -19,8 +19,8 @@
 #define NUM_OF_ROBOMAS_M3508 1 // m3508モータの数
 #define NUM_OF_ROBOMAS_M2006 1 // m2006モータの数
 #define NUM_OF_ROBOMAS (NUM_OF_ROBOMAS_M2006+NUM_OF_ROBOMAS_M3508)
-#define NUM_OF_SERVO 3         // サーボモータの数
-#define NUM_OF_SERVO_BOARD 3   // canサーボ基板の数（1個につきサーボ8個動かせる）
+#define NUM_OF_SERVO 2         // サーボモータの数
+#define NUM_OF_SERVO_BOARD 1   // canサーボ基板の数（1個につきサーボ8個動かせる）
 #define NUM_OF_ROHM_MD 4
 #define NUM_OF_IKAKO_MDC 1
 #define NUM_OF_IKAKO_MD 4

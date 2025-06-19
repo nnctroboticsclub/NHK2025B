@@ -39,6 +39,7 @@ void update_1ms()
 void print_debug()
 {
     can1.print_debug();
+    can2.print_debug();
 }
 
 int main()

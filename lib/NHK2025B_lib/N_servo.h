@@ -52,8 +52,10 @@ public:
                 }
             }else{
                 ServoParameter s;
-                memset(&s,0,sizeof(ServoParameter));
-                servo_data[i].parameter = s;
+                if(memcmp(&servo_data[i].parameter,&s,sizeof(ServoParameter) == 0)){
+                    memset(&s,0,sizeof(ServoParameter));
+                    servo_data[i].parameter = s;
+                }
             }
         }
 
