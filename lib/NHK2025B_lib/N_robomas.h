@@ -1,5 +1,5 @@
 /**
- * @file N_template.h
+ * @file N_robomas.h
  * @author 高野 絆(takanokiduna@gmail.com)
  * @brief NHK2025Bのロボマスクラス
  * @version 0.1
@@ -35,7 +35,6 @@ public:
      * @brief コンストラクタ
      * 
      * @param param パラメータの配列
-     * @param num param[]の要素数
      */
     NHK2025B_Robomas(std::array<RobomasParameter,NUM_OF_ROBOMAS> param={{RobomasParameter()}}) : robomas_sender_{{IkakoRobomasSender(&can1),IkakoRobomasSender(&can2)}}
     {
@@ -75,7 +74,7 @@ public:
     }
 
     /**
-     * @brief whileループする
+     * @brief whileでループする
      */
     void update()
     {
@@ -109,6 +108,9 @@ public:
         return robomas_data[num].parameter;
     }
 
+    /**
+     * @brief send_threadの中に入れる
+     */
     void write()
     {
         if(robomas_sender_data.state.use_can1_flag & robomas_sender_data.state.use_can2_flag){
@@ -121,11 +123,53 @@ public:
         robomas_sender_data.state.write_cnt++;
     }
 
+    /**
+     * @brief 電流値をセットする
+     * 
+     * @param num デバイス番号 (0 <= num < NUM_OF_ROBOMAS)
+     * @param cur 電流値[A]
+     * 
+     */
     void setCurrent(int num,float cur)
     {
         robomas_data[num].cmd.current = cur;
     }
 
+    /**
+     * @brief 回転角度を取得する
+     * 
+     * @param num デバイス番号 (0 <= num < NUM_OF_ROBOMAS)
+     * 
+     * @return [rad]
+     */
+    float getAngle(int num)
+    {
+        return robomas_data[num].state.angle;
+    }
+
+    /**
+     * @brief 回転速度を取得する
+     * 
+     * @param num デバイス番号 (0 <= num < NUM_OF_ROBOMAS)
+     * 
+     * @return [rad/s]
+     */
+    float getVeclocity(int num)
+    {
+        return robomas_data[num].state.vel;
+    }
+
+    /**
+     * @brief トルクを取得する
+     * 
+     * @param num デバイス番号 (0 <= num < NUM_OF_ROBOMAS)
+     * 
+     * @return [N・m]
+     */
+    float getTorque(int num)
+    {
+        return robomas_data[num].state.torque;
+    }
 
     /**
      * @brief デバッグ用関数

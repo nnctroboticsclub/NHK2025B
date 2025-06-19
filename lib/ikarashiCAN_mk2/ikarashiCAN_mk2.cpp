@@ -189,6 +189,7 @@ int ikarashiCAN_mk2::get_send_flag()
 int ikarashiCAN_mk2::write(uint32_t id)
 {
     int this_msgID_to_send = ((id & 0x1f) << 5) | this_msgID;
+    can_id = this_msgID_to_send;
     can_flag_send = can.write(CANMessage(this_msgID_to_send, sender, sender_len));
     return can_flag_send;
 }
@@ -206,6 +207,7 @@ int ikarashiCAN_mk2::filter(int mode, uint32_t id_high, uint32_t mask_high, int3
 
 void ikarashiCAN_mk2::print_debug()
 {
+    printf("can_id:%d,",this->can_id);
     printf("this id:%d,", this->get_this_id());
     printf("read id:%d,", this->get_sender_id());
     printf("read data:");
