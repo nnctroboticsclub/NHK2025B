@@ -15,7 +15,7 @@ public:
      * @param _id can_servoのID
      */
     can_servo(ikarashiCAN_mk2 *_ican, int _id);
-    can_servo();
+    can_servo(){}
 
     /**
      * @brief サーボの値をセットする関数
