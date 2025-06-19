@@ -1,58 +1,87 @@
-#ifndef NHK2025B_SERVO_H
-#define NHK2025B_SERVO_H
+/**
+ * @file servo.h
+ * @author 五十嵐幸多 (kotakota925ika@gmail.com)
+ * @brief サーボモータ関係のクラス
+ * @version 0.1
+ * @date 2024-06-10
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
+#ifndef NHK2024A_SERVO_H
+#define NHK2024A_SERVO_H
 
 #include <mbed.h>
-#include "definitions.h"
-#include "ikarashiCAN_mk2.h"
 #include "can_servo.h"
+#include <vector>
+#include "definitions.h"
+#include "pinconfig.h"
 
-class ServoParameter {
+class NHK_servo
+{
 public:
-    int id = 1;
-    int board_id = 1;
-    ikarashiCAN_mk2* ican = &can1;
-    float max_angle = M_PI + M_2_PI; // [rad]
-    // 他に必要なパラメータがあれば追加していって
-};
+    /**
+     * @brief コンストラクタ
+     *
+     * @param _can canのアドレス
+     * @param _id サーボボードのcanID
+     */
+    NHK_servo(ikarashiCAN_mk2 *_can, int _id)
+    {
+        can = _can;
+        id = _id;
+    }
 
-class NHK2025B_Servo{
-public:
-    NHK2025B_Servo(std::array<ServoParameter, NUM_OF_SERVO> param){
-        for(int i=0;i<NUM_OF_SERVO;i++){
-            int use_board_id[NUM_OF_SERVO_BOARD];
-            servo_data[i].parameter = param[i];
-            servo[i] = can_servo(servo_data[i].parameter.ican,servo_data[i].parameter.board_id);
+    /**
+     * @brief セットアップ
+     *
+     */
+    void setup()
+    {
+        for (int i = 0; i < NUM_OF_SERVO_BOARD; i++)
+        {
+            servo.push_back(can_servo(can, id));
         }
     }
-    void setup(){
-        cnt = 0;
-    }
-    void write()
+
+    /**
+     * @brief サーボの指令値をセット
+     *
+     * @param num サーボモータの番号(0 ~ 7)
+     * @param param 指令値
+     */
+    void set(int num, uint8_t param)
     {
-        servo[cnt % NUM_OF_SERVO].send();
-        cnt++;
+        servo[0].set(num, param);
     }
-    void setAngle(int num, float angle)
+
+    /**
+     * @brief サーボの角度指令値をセット
+     *
+     * @param num サーボモータの番号(0 ~ 7)
+     * @param deg 角度指令値[deg]
+     * @param max_deg サーボモータの最大角度[deg]
+     */
+    void set_deg(int num, int deg, int max_deg)
     {
-        servo_data[num].cmd.angle = angle;
+        servo[0].set(num, (float)deg / max_deg * 255);
     }
-    void update(){
-        for(int i=0;i<NUM_OF_SERVO;i++){
-            servo[i].set(servo_data[i].parameter.id,servo_data[i].cmd.angle);
-        }
+
+    /**
+     * @brief ループ処理
+     *
+     */
+    void update()
+    {
+        for (int i = 0; i < NUM_OF_SERVO_BOARD; i++)
+            servo[i].send();
     }
+
 private:
-    std::array<can_servo,NUM_OF_SERVO> servo;
-    struct{
-        struct{
-            float angle;
-        }cmd;
-        struct{
-            ;
-        }state;
-        ServoParameter parameter;
-    }servo_data[NUM_OF_SERVO];
-    int cnt;
+    std::vector<can_servo> servo;
+    ikarashiCAN_mk2 *can;
+    int id;
 };
 
-#endif // NHK2025B_SERVO_H
+#endif
