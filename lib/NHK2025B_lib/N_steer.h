@@ -173,12 +173,12 @@ private:
 
   void setDirFront(int dir)
   {
-    if (directionOutOfRange(dir))
+    if (!directionOutOfRange(dir))
       steer_data.output.dir.front = getDir(dir);
   }
   void setDirBack(int dir)
   {
-    if (directionOutOfRange(dir))
+    if (!directionOutOfRange(dir))
       steer_data.output.dir.back = getDir(dir);
   }
 
@@ -190,7 +190,10 @@ private:
   {
     bool f = abs(dir) > steer_data.parameter.servo_limit_deg;
     if (f)
+    {
       cout << "direction(" << dir << ") is out of range. (current max degree is set to " << steer_data.parameter.servo_limit_deg << ')' << endl;
+      printf("direction(%f) is out of range. (current max degree is set to %d)\n", dir, steer_data.parameter.servo_limit_deg);
+    }
     return f;
   }
 };
