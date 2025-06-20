@@ -189,7 +189,7 @@ int ikarashiCAN_mk2::get_send_flag()
 int ikarashiCAN_mk2::write(uint32_t id)
 {
     int this_msgID_to_send = ((id & 0x1f) << 5) | this_msgID;
-    can_id = id;
+    can_id = this_msgID_to_send;
     can_flag_send = can.write(CANMessage(this_msgID_to_send, sender, sender_len));
     return can_flag_send;
 }

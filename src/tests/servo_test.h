@@ -4,16 +4,16 @@
 
 std::array<ServoParameter,NUM_OF_SERVO>params{{
     []{ServoParameter p;
-        p.id = 0, p.board_id = 2;
+        p.id = 0;
         return p;}(),
     []{
         ServoParameter p;
-        p.id = 1, p.board_id = 2, p.ican = &can2;
+        p.id = 1;
         return p;
     }(),
     []{
         ServoParameter p;
-        p.id = 2, p.board_id = 2;
+        p.id = 2;
         return p;
     }(),
 }};
@@ -47,6 +47,7 @@ int main()
     servo.setup();
     thread.start(&send_thread);
     ticker.attach(&update_1ms,1ms);
+    can1.read_start();
     int loop_cnt = 0;
     int wave;
     while(true)
