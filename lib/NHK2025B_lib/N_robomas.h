@@ -52,8 +52,7 @@ public:
         robomas_sender_data.state.use_can1_flag = false;
         robomas_sender_data.state.use_can2_flag = false;
         robomas_sender_data.state.write_cnt = 0;
-        for(int i=0;i<NUM_OF_ROBOMAS;i++){
-            int m3508_i=0,m2006_i=0;
+        for(int i=0,m3508_i=0,m2006_i=0;i<NUM_OF_ROBOMAS;i++){
             if(robomas_data[i].parameter.type == robomas_data[i].parameter.TYPE_OF_M3508){
                 m3508[m3508_i].set_params(robomas_data[i].parameter.robomas_id);
                 robomas_[i] = &m3508[m3508_i];
