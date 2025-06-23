@@ -26,7 +26,7 @@ public:
         TYPE_OF_M2006,
         TYPE_OF_M3508
     }type = TYPE_OF_M3508;
-    ikarashiCAN_mk2 *ican_ptr = &can1;
+    ikarashiCAN_mk2 *ican_ptr = &can2;
 };
 
 class NHK2025B_Robomas{
@@ -38,7 +38,7 @@ public:
      */
     NHK2025B_Robomas(std::array<RobomasParameter,NUM_OF_ROBOMAS> param={{RobomasParameter()}}) : robomas_sender_{{IkakoRobomasSender(&can1),IkakoRobomasSender(&can2)}}
     {
-        for(int i=0;i<param.size();i++){
+        for(int i=0;i<NUM_OF_ROBOMAS;i++){
             // 配列の0番目から順にデバイス番号0から割り振られていく
             robomas_data[i].parameter = param[i];
         }
@@ -52,11 +52,11 @@ public:
         robomas_sender_data.state.use_can1_flag = false;
         robomas_sender_data.state.use_can2_flag = false;
         robomas_sender_data.state.write_cnt = 0;
-        for(int i=0;i<NUM_OF_ROBOMAS;i++){
-            int m3508_i=0,m2006_i=0;
+        for(int i=0,m3508_i=0,m2006_i=0;i<NUM_OF_ROBOMAS;i++){
             if(robomas_data[i].parameter.type == robomas_data[i].parameter.TYPE_OF_M3508){
                 m3508[m3508_i].set_params(robomas_data[i].parameter.robomas_id);
                 robomas_[i] = &m3508[m3508_i];
+                printf("%p,%p\n",robomas_[i],&m3508[m3508_i]);
                 m3508_i++;
             }else if(robomas_data[i].parameter.type == robomas_data[i].parameter.TYPE_OF_M2006){
                 m2006[m2006_i].set_params(robomas_data[i].parameter.robomas_id);
@@ -176,7 +176,6 @@ public:
      */
     void print_debug()
     {
-        ;
     }
 
 private:

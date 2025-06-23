@@ -63,6 +63,7 @@ IkakoRobomasSender::IkakoRobomasSender(ikarashiCAN_mk2 *_ican)
 {
     ican = _ican;
     cnt = 0;
+    motor.reserve(8);
 }
 
 int IkakoRobomasSender::write()

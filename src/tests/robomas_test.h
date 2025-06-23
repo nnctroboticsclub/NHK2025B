@@ -2,13 +2,14 @@
 #include "definitions.h"
 #include "N_robomas.h"
 
-std::array<RobomasParameter, NUM_OF_ROBOMAS> params{
-    []{RobomasParameter p;
-    return p;}(),
-    []{RobomasParameter p;
-        p.robomas_id = 5,p.type = RobomasParameter::TYPE_OF_M2006;
-    return p;}()
-};
+
+std::array<RobomasParameter, NUM_OF_ROBOMAS> params{{
+    []{ RobomasParameter p; p.robomas_id = 1; return p;}(),
+    []{ RobomasParameter p; p.robomas_id = 2; return p;}(),
+    []{ RobomasParameter p; p.robomas_id = 3; return p;}(),
+    []{ RobomasParameter p; p.robomas_id = 4; return p;}(),
+}};
+
 
 NHK2025B_Robomas robomas(params);
 Thread thread;
@@ -31,8 +32,8 @@ void update_ts()
 
 void print_debug()
 {
-    can1.print_debug();
-    // can2.print_debug();
+    // can1.print_debug();
+    can2.print_debug();
 }
 
 int main()
