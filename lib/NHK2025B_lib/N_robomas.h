@@ -175,7 +175,32 @@ public:
      */
     void print_debug()
     {
-        ;
+        for (int i = 0; i < NUM_OF_ROBOMAS; i++) {
+            printf("robomas_data[%d]{", i);
+    
+            printf("cmd{");
+            printf("current: %.2f", robomas_data[i].cmd.current);
+            printf("}");
+    
+            printf("state{");
+            printf("rev: %d", robomas_data[i].state.rev);
+            printf("|pre_angle: %.2f", robomas_data[i].state.pre_angle);
+            printf("|abs_angle: %.2f", robomas_data[i].state.abs_angle);
+            printf("|angle: %.2f", robomas_data[i].state.angle);
+            printf("|vel: %.2f", robomas_data[i].state.vel);
+            printf("|torque: %.2f", robomas_data[i].state.torque);
+            printf("}");
+    
+            printf("|}");  // robomas_data 閉じ、区切り
+        }
+    
+        printf("robomas_sender_data{");
+        printf("state{");
+        printf("write_cnt: %d", robomas_sender_data.state.write_cnt);
+        printf("|use_can1_flag: %d", robomas_sender_data.state.use_can1_flag);
+        printf("|use_can2_flag: %d", robomas_sender_data.state.use_can2_flag);
+        printf("}");
+        printf("}");  // robomas_sender_data 閉じ
     }
 
 private:
