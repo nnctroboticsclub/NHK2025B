@@ -1,29 +1,35 @@
 #include "mbed.h"
 #include "N_servo.h"
-// #include "N_steer.h"
-// #include "N_controller.h"
+#include "N_steer.h"
+#include "N_controller.h"
 #include "N_puropo.h"
 #include "N_robomas.h"
 #include "definitions.h"
 
 // サーボパラメータ設定
 std::array<ServoParameter, NUM_OF_SERVO> servo_param{{
-    []{ ServoParameter p; p.id = 1; return p; }(),
-    []{ ServoParameter p; p.id = 2; return p; }(),
+    []
+    { ServoParameter p; p.id = 1; return p; }(),
+    []
+    { ServoParameter p; p.id = 2; return p; }(),
 }};
 
 // ロボマスパラメータ設定
 std::array<RobomasParameter, NUM_OF_ROBOMAS> robomas_param{{
-    []{ RobomasParameter p; p.robomas_id = 1; return p;}(),
-    []{ RobomasParameter p; p.robomas_id = 2; return p;}(),
-    []{ RobomasParameter p; p.robomas_id = 3; return p;}(),
-    []{ RobomasParameter p; p.robomas_id = 4; return p;}(),
+    []
+    { RobomasParameter p; p.robomas_id = 1; return p; }(),
+    []
+    { RobomasParameter p; p.robomas_id = 2; return p; }(),
+    []
+    { RobomasParameter p; p.robomas_id = 3; return p; }(),
+    []
+    { RobomasParameter p; p.robomas_id = 4; return p; }(),
 }};
 
 NHK2025B_Servo servo(servo_param);
 NHK2025B_Robomas robomas(robomas_param);
-// NHK2025B_Steer steer;
-// NHK2025B_Controller controller;
+NHK2025B_Steer steer;
+NHK2025B_Controller controller;
 NHK2025B_Puropo puropo;
 
 Thread thread;
@@ -42,6 +48,7 @@ void send_thread()
 int cnt_1ms = 0;
 void update_1ms()
 {
+    // 今後使ってくならこのままでもいいけどpuropo.update_ts()のみならmain()の中で呼び出してもいい
     // robomas.update_ts();
     puropo.update_ts();
     cnt_1ms++;
@@ -66,8 +73,8 @@ void print_debug()
     //        steer.getFrontAngle(), rad2deg(steer.getFrontAngle()),
     //        steer.getBackAngle(), rad2deg(steer.getBackAngle()),
     //        steer.getVelocity());
-    printf("is_ok:%d,\n",puropo.getCommunicatable(0));
-    
+    printf("is_ok:%d,\n", puropo.getCommunicatable(0));
+
     steer.print_debug();
     can1.print_debug();
     can2.print_debug();
@@ -110,7 +117,6 @@ int main()
         // steer.setDirection(controller.getSteerDirection());
         // steer.setVelocity(controller.getSteerVelocity());
 
-
         // servo.setAngle(0, steer.getFrontAngle());
         // servo.setAngle(1, steer.getBackAngle());
 
@@ -121,8 +127,9 @@ int main()
 
         servo.setAngle(1, M_2_PI + puropo.getLeftX(0) * M_PI / 180 * 25);
         servo.setAngle(0, M_2_PI - puropo.getLeftX(0) * M_PI / 180 * 25);
-        robomas.setCurrent(0,puropo.getLeftY(0)*5.0);
-        robomas.setCurrent(1,-puropo.getLeftY(0)*5.0);
+        robomas.setCurrent(0, puropo.getLeftY(0) * 5.0);
+        robomas.setCurrent(1, -puropo.getLeftY(0) * 5.0);
         update();
+        ThisThread::sleep_for(1ms); // ちょっと待ってあげたほうがいいかも
     }
 }
