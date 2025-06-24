@@ -1,7 +1,7 @@
 #include "mbed.h"
 #include "N_servo.h"
-#include "N_steer.h"
-#include "N_controller.h"
+// #include "N_steer.h"
+// #include "N_controller.h"
 #include "N_puropo.h"
 #include "N_robomas.h"
 #include "definitions.h"
@@ -22,8 +22,8 @@ std::array<RobomasParameter, NUM_OF_ROBOMAS> robomas_param{{
 
 NHK2025B_Servo servo(servo_param);
 NHK2025B_Robomas robomas(robomas_param);
-NHK2025B_Steer steer;
-NHK2025B_Controller controller;
+// NHK2025B_Steer steer;
+// NHK2025B_Controller controller;
 NHK2025B_Puropo puropo;
 
 Thread thread;
@@ -86,36 +86,43 @@ int main()
     thread.start(&send_thread);
     ticker.attach(&update_1ms, 1ms);
 
-    Timer time_ms;
-    time_ms.start();
-    int ms;
+    // Timer time_ms;
+    // time_ms.start();
+    // int ms;
     while (true)
     {
         if (cnt_1ms > 100)
         {
             cnt_1ms = 0;
-            // print_debug();
-            // puts("");
+            print_debug();
+            puts("");
         }
-        printf("%d\n",ms - time_ms.read_ms());
-        ms = time_ms.read_ms();
+        // printf("%d\n",ms - time_ms.read_ms());
+        // ms = time_ms.read_ms();
 
-        controller.setSteerDirection(puropo.getLeftX(0));
-        controller.setSteerVelocity(puropo.getLeftY(0));
-        controller.setSteerTurn(puropo.getRightX(0));
+        // controller.setSteerDirection(puropo.getLeftX(0));
+        // controller.setSteerVelocity(puropo.getLeftY(0));
+        // controller.setSteerTurn(puropo.getRightX(0));
+        led[1] = puropo.getCommunicatable(0);
+        ES = puropo.getCommunicatable(0);
 
-        steer.setTurn(controller.getSteerTurn());
-        steer.setDirection(controller.getSteerDirection());
-        steer.setVelocity(controller.getSteerVelocity());
+        // steer.setTurn(controller.getSteerTurn());
+        // steer.setDirection(controller.getSteerDirection());
+        // steer.setVelocity(controller.getSteerVelocity());
 
-        servo.setAngle(0, steer.getFrontAngle());
-        servo.setAngle(1, steer.getBackAngle());
 
-        robomas.setCurrent(0, steer.getVelocity());
-        robomas.setCurrent(1, steer.getVelocity());
-        robomas.setCurrent(2, -steer.getVelocity());
-        robomas.setCurrent(3, -steer.getVelocity());
+        // servo.setAngle(0, steer.getFrontAngle());
+        // servo.setAngle(1, steer.getBackAngle());
 
+        // robomas.setCurrent(0, steer.getVelocity());
+        // robomas.setCurrent(1, steer.getVelocity());
+        // robomas.setCurrent(2, -steer.getVelocity());
+        // robomas.setCurrent(3, -steer.getVelocity());
+
+        servo.setAngle(1, M_2_PI + puropo.getLeftX(0) * M_PI / 180 * 25);
+        servo.setAngle(0, M_2_PI - puropo.getLeftX(0) * M_PI / 180 * 25);
+        robomas.setCurrent(0,puropo.getLeftY(0)*5.0);
+        robomas.setCurrent(1,-puropo.getLeftY(0)*5.0);
         update();
     }
 }
