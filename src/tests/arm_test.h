@@ -7,7 +7,7 @@
 
 std::array<RobomasParameter, NUM_OF_ROBOMAS> robomas_params{
     []{RobomasParameter p;
-        p.type = RobomasParameter::TYPE_OF_M2006;
+        p.robomas_id = 1, p.type = RobomasParameter::TYPE_OF_M2006;
         return p;
     }()
 };
@@ -69,6 +69,8 @@ int main()
         controller.setArmEffort(puropo.getLeftY(0));
         arm.setEffort(0,controller.getArmEffort());
         robomas.setCurrent(0,arm.getEffort(0));
+        // 動かなかったら69, 70,73行目コメントアウトして,下行のコメントアウトを解除してください
+        robomas.setCurrent(0,puropo.getLeftY(0) * 5.0);
         update();
     }
 }
