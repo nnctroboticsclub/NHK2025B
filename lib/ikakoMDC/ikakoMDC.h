@@ -11,6 +11,7 @@ class ikakoMDC : public lpf, public PID
 public:
 
     ikakoMDC(int _motor_num, int _min_speed, int _max_speed, float cycle_s, float time_s, float Kc, float tauI, float tauD, float interval);
+    ikakoMDC(){}
     void set_speed(int8_t _speed, bool mode = true);
     int get_enc();
     int get_speed();
@@ -46,6 +47,7 @@ class ikakoMDC_sender
 public:
 
     ikakoMDC_sender(ikakoMDC *_imdc, int _imdc_size, ikarashiCAN_mk2 *_can, int _mdc_id);
+    ikakoMDC_sender(){}
     int send();
     bool read_enc();
     int get_mdc_id();
