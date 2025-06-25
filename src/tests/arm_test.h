@@ -7,7 +7,7 @@
 
 std::array<RobomasParameter, NUM_OF_ROBOMAS> robomas_params{
     []{RobomasParameter p;
-        p.robomas_id = 1, p.type = RobomasParameter::TYPE_OF_M2006;
+        p.robomas_id = 2, p.type = RobomasParameter::TYPE_OF_M2006;
         return p;
     }()
 };
@@ -38,6 +38,7 @@ void update()
 int cnt_1ms = 0;
 void update_1ms()
 {
+    puropo.update_ts();
     cnt_1ms++;
 }
 
@@ -51,13 +52,15 @@ void send_thread()
 
 void print_debug()
 {
-    can1.print_debug();
+    // robomas.print_debug();
+    // puropo.print_debug();
+    can2.print_debug();
 }
 
 int main()
 {
     setup();
-    can1.read_start();
+    can2.read_start();
     thread.start(&send_thread);
     ticker.attach(&update_1ms,1ms);
     while(1){
@@ -68,9 +71,11 @@ int main()
         }
         controller.setArmEffort(puropo.getLeftY(0));
         arm.setEffort(0,controller.getArmEffort());
-        robomas.setCurrent(0,arm.getEffort(0));
         // 動かなかったら69, 70,73行目コメントアウトして,下行のコメントアウトを解除してください
-        robomas.setCurrent(0,puropo.getLeftY(0) * 5.0);
+        // robomas.setCurrent(0,puropo.getLeftY(0) * 5.0);
+        robomas.setCurrent(0,arm.getEffort(0));
+        ES = puropo.getCommunicatable(0);
         update();
+        ThisThread::sleep_for(1ms);
     }
 }
