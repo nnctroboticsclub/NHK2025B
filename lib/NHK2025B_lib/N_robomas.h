@@ -140,6 +140,16 @@ public:
     }
 
     /**
+     * @brief ロボマスの回転カウントなどのステータスをリセットする
+     * 
+     * @param num デバイス番号 (0 <= num < NUM_OF_ROBOMAS)
+     */
+    void resetState(int num)
+    {
+        memset(&robomas_data[num].state,0,sizeof(robomas_data->state));
+    }
+
+    /**
      * @brief send_threadの中に入れる
      */
     void write()

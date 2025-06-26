@@ -2,6 +2,8 @@
 #include "definitions.h"
 #include "N_robomas.h"
 
+DigitalIn button(pins.SW1);
+
 std::array<RobomasParameter, NUM_OF_ROBOMAS> params{
     []{RobomasParameter p;
         p.robomas_id = 3;
@@ -52,6 +54,9 @@ int main()
             puts("");
             cnt_1ms = 0;
             cnt_100ms++;
+        }
+        if(button){
+            robomas.resetState(0);
         }
         for(int i=0;i<NUM_OF_ROBOMAS;i++){
             robomas.setCurrent(i,cnt_100ms / 20.0);
