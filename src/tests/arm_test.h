@@ -29,6 +29,8 @@ void setup()
     // puropo.setup();
     // controller.setup();
     // arm.setup();
+    can1.read_start();
+    can2.read_start();
 }
 
 void update()
@@ -37,11 +39,14 @@ void update()
     // puropo.update();
     // controller.update();
     // arm.udpate();
+    can1.update();
+    can2.update();
 }
 
 int cnt_1ms = 0;
 void update_1ms()
 {
+    robomas.update_ts();
     // puropo.update_ts();
     cnt_1ms++;
 }
@@ -56,7 +61,7 @@ void send_thread()
 
 void print_debug()
 {
-    // robomas.print_debug();
+    robomas.print_debug();
     // puropo.print_debug();
     can2.print_debug();
 }
@@ -76,7 +81,7 @@ int main()
             puts("");
             cnt_1ms = 0;
             current += button1 * 0.1;
-            current -= button1 * 0.1;
+            current -= button2 * 0.1;
         }
         // controller.setArmEffort(puropo.getLeftY(0));
         // arm.setEffort(0,controller.getArmEffort());
