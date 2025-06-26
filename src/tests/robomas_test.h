@@ -27,13 +27,14 @@ void send_thread()
 int cnt_1ms = 0;
 void update_ts()
 {
+    robomas.update_ts();
     cnt_1ms++;
 }
 
 void print_debug()
 {
-    can1.print_debug();
-    can2.print_debug();
+    // can1.print_debug();
+    robomas.print_debug();
 }
 
 int main()
@@ -43,21 +44,22 @@ int main()
     ticker.attach(&update_ts,1ms);
     can1.read_start();
     can2.read_start();
-    int loop_cnt = 0;
+    int cnt_100ms = 0;
     while(1){
+        ES = 1;
         if(cnt_1ms > 100){
-            printf("%.2f,",loop_cnt / 2000.0f);
             print_debug();
             puts("");
             cnt_1ms = 0;
+            cnt_100ms++;
         }
-        for(int i=0;i<2;i++){
-            robomas.setCurrent(i,loop_cnt / 2000.0);
+        for(int i=0;i<NUM_OF_ROBOMAS;i++){
+            robomas.setCurrent(i,cnt_100ms / 20.0);
         }
-        loop_cnt++;
-        loop_cnt = loop_cnt%10000;
+        cnt_100ms %= 20;
         robomas.update();
         can1.update();
         can2.update();
+        ThisThread::sleep_for(1ms);
     }
 }

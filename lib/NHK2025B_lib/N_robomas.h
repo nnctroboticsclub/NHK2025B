@@ -53,6 +53,7 @@ public:
         robomas_sender_data.state.use_can2_flag = false;
         robomas_sender_data.state.write_cnt = 0;
         for(int i=0,m3508_i=0,m2006_i=0;i<NUM_OF_ROBOMAS;i++){
+            robomas_data[i].state.rev = 0;
             if(robomas_data[i].parameter.type == robomas_data[i].parameter.TYPE_OF_M3508){
                 m3508[m3508_i].set_params(robomas_data[i].parameter.robomas_id);
                 robomas_[i] = &m3508[m3508_i];
@@ -89,9 +90,40 @@ public:
      */
     void update_ts()
     {
-        for(int i=0;i<NUM_OF_CAN;i++)
-        {
-            robomas_sender_[i].read();
+        if(robomas_sender_data.state.use_can1_flag){
+            robomas_sender_[0].read();
+        }
+        if(robomas_sender_data.state.use_can2_flag){
+            robomas_sender_[1].read();
+        }
+
+        for(int i=0;i<NUM_OF_ROBOMAS;i++){
+            robomas_data[i].state.angle = robomas_[i]->get_angle();
+            robomas_data[i].state.torque = robomas_[i]->get_torque();
+            robomas_data[i].state.vel = robomas_[i]->get_vel();
+            if(robomas_data[i].state.vel > 0.5){
+                if(robomas_data[i].state.angle < robomas_data[i].state.pre_angle){
+                    robomas_data[i].state.rev++;
+                }
+            }else{
+                if((robomas_data[i].state.angle <= (120 * M_PI / 180)) && 
+                (robomas_data[i].state.pre_angle >= (240 * M_PI / 180))){
+                    robomas_data[i].state.rev++;
+                }
+            }
+            if(robomas_data[i].state.vel < -0.5){
+                if(robomas_data[i].state.angle > robomas_data[i].state.pre_angle){
+                    robomas_data[i].state.rev--;
+                }
+            }else{
+                if((robomas_data[i].state.angle >= (240 * M_PI / 180)) && 
+                (robomas_data[i].state.pre_angle <= (120 * M_PI / 180))){
+                robomas_data[i].state.rev--;
+                }
+            }
+
+            robomas_data[i].state.pre_angle = robomas_data[i].state.angle;
+            robomas_data[i].state.abs_angle = robomas_data[i].state.angle + robomas_data[i].state.rev * M_TWOPI;
         }
     }
 
