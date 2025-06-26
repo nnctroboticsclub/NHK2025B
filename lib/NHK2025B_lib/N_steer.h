@@ -15,7 +15,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#include <mbed.h>
+// #include <mbed.h>
 #include <definitions.h>
 // #include <servo.h>
 
@@ -68,6 +68,16 @@ public:
   {
     setDirFront(rad2deg(dir));
     setDirBack(rad2deg(dir));
+  }
+  /**
+   * @brief set direction of all steers to dir[deg]
+   *
+   * @param dir [deg] no detail for range
+   */
+  void setDirection(int dir)
+  {
+    setDirFront(dir);
+    setDirBack(dir);
   }
 
   /**
@@ -141,7 +151,21 @@ public:
    * @brief empty functions
    */
   void update() {}
+  /**
+   * @brief empty functions
+   */
   void print_debug() {}
+
+  /**
+   * @brief debug parameters once
+   */
+  void debug_once()
+  {
+    printf("dir: {front: %d, back: %d}, velocity: %f\n",
+           steer_data.output.dir.front,
+           steer_data.output.dir.back,
+           steer_data.output.velocity);
+  }
 
 private:
   struct
@@ -175,11 +199,15 @@ private:
   {
     if (!directionOutOfRange(dir))
       steer_data.output.dir.front = getDir(dir);
+    else
+      steer_data.output.dir.front = steer_data.parameter.initial_deg + (dir > 0 ? 1 : -1) * steer_data.parameter.servo_limit_deg;
   }
   void setDirBack(int dir)
   {
     if (!directionOutOfRange(dir))
       steer_data.output.dir.back = getDir(dir);
+    else
+      steer_data.output.dir.back = steer_data.parameter.initial_deg + (dir > 0 ? 1 : -1) * steer_data.parameter.servo_limit_deg;
   }
 
   int getDir(int dir)
