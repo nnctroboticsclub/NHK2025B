@@ -53,6 +53,7 @@ public:
         robomas_sender_data.state.use_can2_flag = false;
         robomas_sender_data.state.write_cnt = 0;
         for(int i=0,m3508_i=0,m2006_i=0;i<NUM_OF_ROBOMAS;i++){
+            robomas_data[i].state.rev = 0;
             if(robomas_data[i].parameter.type == robomas_data[i].parameter.TYPE_OF_M3508){
                 m3508[m3508_i].set_params(robomas_data[i].parameter.robomas_id);
                 robomas_[i] = &m3508[m3508_i];
@@ -90,9 +91,40 @@ public:
      */
     void update_ts()
     {
-        for(int i=0;i<NUM_OF_CAN;i++)
-        {
-            robomas_sender_[i].read();
+        if(robomas_sender_data.state.use_can1_flag){
+            robomas_sender_[0].read();
+        }
+        if(robomas_sender_data.state.use_can2_flag){
+            robomas_sender_[1].read();
+        }
+
+        for(int i=0;i<NUM_OF_ROBOMAS;i++){
+            robomas_data[i].state.angle = robomas_[i]->get_angle();
+            robomas_data[i].state.torque = robomas_[i]->get_torque();
+            robomas_data[i].state.vel = robomas_[i]->get_vel();
+            if(robomas_data[i].state.vel > 0.5){
+                if(robomas_data[i].state.angle < robomas_data[i].state.pre_angle){
+                    robomas_data[i].state.rev++;
+                }
+            }else{
+                if((robomas_data[i].state.angle <= (120 * M_PI / 180)) && 
+                (robomas_data[i].state.pre_angle >= (240 * M_PI / 180))){
+                    robomas_data[i].state.rev++;
+                }
+            }
+            if(robomas_data[i].state.vel < -0.5){
+                if(robomas_data[i].state.angle > robomas_data[i].state.pre_angle){
+                    robomas_data[i].state.rev--;
+                }
+            }else{
+                if((robomas_data[i].state.angle >= (240 * M_PI / 180)) && 
+                (robomas_data[i].state.pre_angle <= (120 * M_PI / 180))){
+                robomas_data[i].state.rev--;
+                }
+            }
+
+            robomas_data[i].state.pre_angle = robomas_data[i].state.angle;
+            robomas_data[i].state.abs_angle = robomas_data[i].state.angle + robomas_data[i].state.rev * M_TWOPI;
         }
     }
 
@@ -106,6 +138,16 @@ public:
     RobomasParameter getParam(int num)
     {
         return robomas_data[num].parameter;
+    }
+
+    /**
+     * @brief ロボマスの回転カウントなどのステータスをリセットする
+     * 
+     * @param num デバイス番号 (0 <= num < NUM_OF_ROBOMAS)
+     */
+    void resetState(int num)
+    {
+        memset(&robomas_data[num].state,0,sizeof(robomas_data->state));
     }
 
     /**
@@ -176,6 +218,32 @@ public:
      */
     void print_debug()
     {
+        for (int i = 0; i < NUM_OF_ROBOMAS; i++) {
+            printf("robomas_data[%d]{", i);
+    
+            printf("cmd{");
+            printf("current: %.2f", robomas_data[i].cmd.current);
+            printf("}");
+    
+            printf("state{");
+            printf("rev: %d", robomas_data[i].state.rev);
+            printf("|pre_angle: %.2f", robomas_data[i].state.pre_angle);
+            printf("|abs_angle: %.2f", robomas_data[i].state.abs_angle);
+            printf("|angle: %.2f", robomas_data[i].state.angle);
+            printf("|vel: %.2f", robomas_data[i].state.vel);
+            printf("|torque: %.2f", robomas_data[i].state.torque);
+            printf("}");
+    
+            printf("|}");  // robomas_data 閉じ、区切り
+        }
+    
+        printf("robomas_sender_data{");
+        printf("state{");
+        printf("write_cnt: %d", robomas_sender_data.state.write_cnt);
+        printf("|use_can1_flag: %d", robomas_sender_data.state.use_can1_flag);
+        printf("|use_can2_flag: %d", robomas_sender_data.state.use_can2_flag);
+        printf("}");
+        printf("}");  // robomas_sender_data 閉じ
     }
 
 private:
