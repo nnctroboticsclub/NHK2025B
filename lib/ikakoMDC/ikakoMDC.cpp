@@ -115,7 +115,7 @@ int ikakoMDC_sender::send()
     for (int i = 0; i < mdc_size; i++)
     {
         speed_buffer = imdc[i].get_speed();
-        cmsDF.motor[i] = speed_buffer;
+        cmsDF.motor[imdc[i].get_motor_num()] = speed_buffer;
     }
     can->set(cmsDF.data_array, sizeof(cmsDF.data_array));
     return can->write(mdc_id);
