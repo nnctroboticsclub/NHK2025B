@@ -6,6 +6,8 @@
 #include "N_robomas.h"
 #include "definitions.h"
 
+#define torqueGain 0.1f // ここの値いい感じにする
+
 // サーボパラメータ設定
 std::array<ServoParameter, NUM_OF_SERVO> servo_param{{
     []
@@ -67,17 +69,23 @@ void update()
 // デバッグ出力関数
 void print_debug()
 {
-    // controller.print_debug();
-    // puropo.print_debug();
-    // printf("front: %f(%d), back: %f(%d), velocity: %f\n",
-    //        steer.getFrontAngle(), rad2deg(steer.getFrontAngle()),
-    //        steer.getBackAngle(), rad2deg(steer.getBackAngle()),
-    //        steer.getVelocity());
-    printf("is_ok:%d,\n", puropo.getCommunicatable(0));
+    // printf("is_ok:%d,\n", puropo.getCommunicatable(0));
 
-    steer.print_debug();
-    can1.print_debug();
-    can2.print_debug();
+    // steer.print_debug();
+    // can1.print_debug();
+    // can2.print_debug();
+
+    float torque_diff_val = torqueFeedback();
+    printf("torque_diff: %f\ttorque stronger:%s\n",
+           abs(torque_diff_val),
+           (torque_diff_val > 0.1f) ? "left" : "right");
+}
+
+float torqueFeedback()
+{
+    float torque0 = robomas.getTorque(0);
+    float torque1 = robomas.getTorque(1);
+    return torque0 - torque1;
 }
 
 int main()
@@ -93,9 +101,8 @@ int main()
     thread.start(&send_thread);
     ticker.attach(&update_1ms, 1ms);
 
-    // Timer time_ms;
-    // time_ms.start();
-    // int ms;
+    float torque_diff = 0.0f;
+
     while (true)
     {
         if (cnt_1ms > 100)
@@ -104,32 +111,42 @@ int main()
             print_debug();
             puts("");
         }
-        // printf("%d\n",ms - time_ms.read_ms());
-        // ms = time_ms.read_ms();
 
-        // controller.setSteerDirection(puropo.getLeftX(0));
-        // controller.setSteerVelocity(puropo.getLeftY(0));
-        // controller.setSteerTurn(puropo.getRightX(0));
         led[1] = puropo.getCommunicatable(0);
         ES = puropo.getCommunicatable(0);
 
-        // steer.setTurn(controller.getSteerTurn());
-        // steer.setDirection(controller.getSteerDirection());
-        // steer.setVelocity(controller.getSteerVelocity());
-
-        // servo.setAngle(0, steer.getFrontAngle());
-        // servo.setAngle(1, steer.getBackAngle());
-
-        // robomas.setCurrent(0, steer.getVelocity());
-        // robomas.setCurrent(1, steer.getVelocity());
-        // robomas.setCurrent(2, -steer.getVelocity());
-        // robomas.setCurrent(3, -steer.getVelocity());
-
         servo.setAngle(1, M_PI_2 + puropo.getLeftX(0) * M_PI / 180 * 25);
         servo.setAngle(0, M_PI_2 - puropo.getLeftX(0) * M_PI / 180 * 25);
-        robomas.setCurrent(0, puropo.getLeftY(0) * 5.0);
-        robomas.setCurrent(1, -puropo.getLeftY(0) * 5.0);
+
+        torque_diff = torqueFeedback();
+
+        robomas.setCurrent(0, puropo.getLeftY(0) * 5.0 + torque_diff * torqueGain);
+        robomas.setCurrent(1, (puropo.getLeftY(0) * 5.0 + torque_diff * torqueGain) * -1.0);
         update();
         ThisThread::sleep_for(1ms); // ちょっと待ってあげたほうがいいかも
     }
 }
+
+/*
+旋回のテスト用コード
+while (true)
+{
+    if (cnt_1ms > 100)
+    {
+        cnt_1ms = 0;
+        print_debug();
+        puts("");
+    }
+
+    led[1] = puropo.getCommunicatable(0);
+    ES = puropo.getCommunicatable(0);
+
+    // servo.setAngle(1, M_PI_2 + puropo.getLeftX(0) * M_PI / 180 * 25);
+    // servo.setAngle(0, M_PI_2 - puropo.getLeftX(0) * M_PI / 180 * 25);
+
+    robomas.setCurrent(0, puropo.getLeftY(0) * 5.0);
+    robomas.setCurrent(1, (puropo.getLeftY(0) * 5.0));
+    update();
+    ThisThread::sleep_for(1ms); // ちょっと待ってあげたほうがいいかも
+}
+*/
