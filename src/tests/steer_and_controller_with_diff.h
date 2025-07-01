@@ -115,8 +115,8 @@ int main()
         led[1] = puropo.getCommunicatable(0);
         ES = puropo.getCommunicatable(0);
 
-        servo.setAngle(1, M_2_PI + puropo.getLeftX(0) * M_PI / 180 * 25);
-        servo.setAngle(0, M_2_PI - puropo.getLeftX(0) * M_PI / 180 * 25);
+        servo.setAngle(1, M_PI_2 + puropo.getLeftX(0) * M_PI / 180 * 25);
+        servo.setAngle(0, M_PI_2 - puropo.getLeftX(0) * M_PI / 180 * 25);
 
         torque_diff = torqueFeedback();
 
@@ -141,8 +141,8 @@ while (true)
     led[1] = puropo.getCommunicatable(0);
     ES = puropo.getCommunicatable(0);
 
-    // servo.setAngle(1, M_2_PI + puropo.getLeftX(0) * M_PI / 180 * 25);
-    // servo.setAngle(0, M_2_PI - puropo.getLeftX(0) * M_PI / 180 * 25);
+    // servo.setAngle(1, M_PI_2 + puropo.getLeftX(0) * M_PI / 180 * 25);
+    // servo.setAngle(0, M_PI_2 - puropo.getLeftX(0) * M_PI / 180 * 25);
 
     robomas.setCurrent(0, puropo.getLeftY(0) * 5.0);
     robomas.setCurrent(1, (puropo.getLeftY(0) * 5.0));
