@@ -12,7 +12,7 @@ public:
     int id = 0;
     int board_id = 1;
     ikarashiCAN_mk2* ican = &can1;
-    float max_angle = M_PI + M_2_PI; // [rad]
+    float max_angle = M_PI + M_PI_2; // [rad]
     // 他に必要なパラメータがあれば追加していって
 };
 
