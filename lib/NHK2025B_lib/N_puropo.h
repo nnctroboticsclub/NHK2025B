@@ -21,8 +21,10 @@
 
 class PuropoParameter{
 public:
-    PinName tx = pins.PUROPO_TX;
-    PinName rx = pins.PUROPO_RX;
+    // PinName tx = pins.PUROPO_TX;
+    // PinName rx = pins.PUROPO_RX;
+    PinName tx = pins.FEP_TX;
+    PinName rx = pins.FEP_RX;
     int timeout = 500; // [ms]
 };
 class NHK2025B_Puropo{
@@ -155,6 +157,11 @@ public:
                 puropo_data[i].state.timeout = 0;
             }else{
                 puropo_data[i].state.timeout++;
+                // puropo_data[i].state.left_x = 0;
+                // puropo_data[i].state.left_y = 0;
+                // puropo_data[i].state.right_x = 0;
+                // puropo_data[i].state.right_y = 0;
+                // for(int j=0;j<6;j++) puropo_data[i].state.axis[j] = 0;
             }
         }
     }
@@ -164,6 +171,7 @@ public:
      */
     void print_debug()
     {
+        // puropo[0]->debug();
         for(int i=0;i<NUM_OF_PUROPO;i++){
             printf("puropo_data{");
             printf("state{");
