@@ -4,18 +4,30 @@
 #include "N_puropo.h"
 #include "N_controller.h"
 #include "N_arm.h"
+#include "N_rohmMD.h"
 
 DigitalIn button1(pins.SW1);
 DigitalIn button2(pins.SW2);
 DigitalIn button3(pins.SW3);
 
+// NUM_OF_M2006 = 1
 std::array<RobomasParameter, NUM_OF_ROBOMAS> robomas_params{
     []{RobomasParameter p;
         p.robomas_id = 2, p.type = RobomasParameter::TYPE_OF_M2006;
         return p;
     }()
 };
+// NUM_OF_ROHM_MD = 2
+std::array<RohmMdParameter, NUM_OF_ROHM_MD> rohm_params{
+    []{RohmMdParameter p;
+        p.id = 1;
+        return p;}(),
+    []{RohmMdParameter p;
+        p.id = 2;
+        return p;}(),
+};
 NHK2025B_Robomas robomas(robomas_params);
+NHK2025B_RohmMD rohm(rohm_params);
 // NHK2025B_Puropo puropo;
 // NHK2025B_Controller controller;
 // NHK2025B_Arm arm;
@@ -26,6 +38,7 @@ Ticker ticker;
 void setup()
 {
     robomas.setup();
+    rohm.setup();
     // puropo.setup();
     // controller.setup();
     // arm.setup();
@@ -36,6 +49,7 @@ void setup()
 void update()
 {
     robomas.update();
+    rohm.update();
     // puropo.update();
     // controller.update();
     // arm.udpate();
@@ -55,15 +69,17 @@ void send_thread()
 {
     while(1){
         robomas.write();
+        rohm.write();
         ThisThread::sleep_for(1ms);
     }
 }
 
 void print_debug()
 {
-    robomas.print_debug();
+    // robomas.print_debug();
     // puropo.print_debug();
-    can2.print_debug();
+    // can2.print_debug();
+    can1.print_debug();
 }
 
 int main()
@@ -93,6 +109,8 @@ int main()
         if(current > 5.0) current = 5.0;
         if(current < -5.0) current = -5.0;
         robomas.setCurrent(0,current);
+        rohm.setPower(0,current / 5.0);
+        rohm.setPower(1,-current / 5.0);
         update();
         // ThisThread::sleep_for();
     }

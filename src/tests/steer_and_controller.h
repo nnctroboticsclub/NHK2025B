@@ -100,7 +100,7 @@ int main()
     // 右輪のタイヤの中心から左輪のタイヤの中心までの長さ
     float track_width = 400e-3; // [m]
     // タイヤの半径
-    float wheel_radius = 152e-3; // [m]
+    float wheel_radius = 76e-3; // [m]
     float turning_radius; // 回転半径(右輪と左輪の中心が円の線を通る)[m]
     float back_omegaL,back_omegaR,front_omegaL,front_omegaR; // 各車輪の角速度[rad/s]
     float *wheel_omega[] = {&front_omegaR, &front_omegaL, &back_omegaL, &back_omegaR}; // 角速度の配列
