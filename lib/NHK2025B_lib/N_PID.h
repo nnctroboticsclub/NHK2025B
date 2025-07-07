@@ -7,6 +7,7 @@
  * @date 2025-06-11
  */
 
+#include "definitions.h"
 #ifndef NHK2025B_PID_H
 #define NHK2025B_PID_H
 
@@ -36,10 +37,10 @@ public:
 class NHK2025B_PID
 {
 public:
-    NHK2025B_PID() : NHK2025B_PID(PidParameter()) {}
-    NHK2025B_PID(const PidParameter &param)
+    // NHK2025B_PID() : NHK2025B_PID(PidParameter()) {}
+    NHK2025B_PID(std::array<PidParameter, NUM_OF_PID_CONTROLLER> param)
     {
-        rep(i, NUM_OF_PID_CONTROLLER) pid_data[i].parameter = param;
+        rep(i, NUM_OF_PID_CONTROLLER) pid_data[i].parameter = param[i];
     }
 
     void reset(int j = 0)
@@ -53,6 +54,15 @@ public:
 
     float calc(float e, int j);
     float get(int j);
+    void update_ts()
+    {
+        for(int i=0;i<NUM_OF_PID_CONTROLLER;i++){
+            pid_data[i].state.output = calc(pid_data[i].cmd.goal_value - pid_data[i].cmd.process_value,i);
+        }
+    }
+    float getOutput(int num){ return pid_data[num].state.output; }
+    void setGoalValue(int num, float val){ pid_data[num].cmd.goal_value = val; }
+    void setProcessValue(int num, float val){ pid_data[num].cmd.process_value = val; }
 
 private:
     struct

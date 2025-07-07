@@ -25,7 +25,7 @@
 #define NUM_OF_IKAKO_MDC 1
 #define NUM_OF_IKAKO_MD 4
 #define NUM_OF_PUROPO 1 // プロポの数
-#define NUM_OF_PID_CONTROLLER 1
+#define NUM_OF_PID_CONTROLLER 4
 #define NUM_OF_ARM 1
 #define CAN_FREQUENCY 1e6 // canの周波数。ロボますモータは1 [MHz]だけど、これまで部内のモジュールは50 [kHz]だから気をつけて
 

@@ -4,6 +4,7 @@
 #include "N_controller.h"
 #include "N_puropo.h"
 #include "N_robomas.h"
+#include "N_PID.h"
 #include "definitions.h"
 
 // サーボパラメータ設定
@@ -26,11 +27,21 @@ std::array<RobomasParameter, NUM_OF_ROBOMAS> robomas_param{{
     { RobomasParameter p; p.robomas_id = 4; return p; }(),
 }};
 
+// PID
+std::array<PidParameter, NUM_OF_ROBOMAS> robomas_pid_param{
+    []{ PidParameter p; p.kp = 1.0, p.out_max = 2.0; return p;}(),
+    []{ PidParameter p; p.kp = 1.0, p.out_max = 2.0; return p;}(),
+    []{ PidParameter p; p.kp = 1.0, p.out_max = 2.0; return p;}(),
+    []{ PidParameter p; p.kp = 1.0, p.out_max = 2.0; return p;}(),
+};
+float output[NUM_OF_ROBOMAS];
+
 NHK2025B_Servo servo(servo_param);
 NHK2025B_Robomas robomas(robomas_param);
 NHK2025B_Steer steer;
 NHK2025B_Controller controller;
 NHK2025B_Puropo puropo;
+NHK2025B_PID robomas_pid(robomas_pid_param);
 
 Thread thread;
 Ticker ticker;
@@ -49,6 +60,9 @@ int cnt_1ms = 0;
 void update_1ms()
 {
     // 今後使ってくならこのままでもいいけどpuropo.update_ts()のみならmain()の中で呼び出してもいい
+    robomas_pid.setProcessValue(0,robomas.getVeclocity(0));
+    robomas_pid.setProcessValue(1,robomas.getVeclocity(1));
+    robomas_pid.update_ts();
     robomas.update_ts();
     puropo.update_ts();
     cnt_1ms++;
@@ -153,16 +167,19 @@ int main()
         front_omegaL = -front_vL / wheel_radius;
         back_omegaR = back_vR / wheel_radius;
         back_omegaL = -back_vL / wheel_radius;
+        robomas_pid.setGoalValue(0,back_omegaR);
+        robomas_pid.setGoalValue(1,back_omegaL);
         
         cmd_vel *= 5.0;
 
         servo.setAngle(1, M_PI / 180 * 120 + cmd_angle);
         servo.setAngle(0, M_PI / 180 * 120 - cmd_angle);
-        robomas.setCurrent(0, cmd_vel);
-        robomas.setCurrent(1, -cmd_vel);
+        // robomas.setCurrent(0, cmd_vel);
+        // robomas.setCurrent(1, -cmd_vel);
+
         
-        // robomas.setCurrent(0,back_omegaR);
-        // robomas.setCurrent(1,back_omegaL);
+        robomas.setCurrent(1,-robomas_pid.getOutput(0));
+        robomas.setCurrent(0,-robomas_pid.getOutput(1));
         update();
         ThisThread::sleep_for(1ms); // ちょっと待ってあげたほうがいいかも
     }
