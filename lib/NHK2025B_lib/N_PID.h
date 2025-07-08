@@ -54,6 +54,9 @@ public:
 
     float calc(float e, int j);
     float get(int j);
+    void setParameter(int num,PidParameter param){
+        pid_data[num].parameter = param;
+    }
     void update_ts()
     {
         for(int i=0;i<NUM_OF_PID_CONTROLLER;i++){
