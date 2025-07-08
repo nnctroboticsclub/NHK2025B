@@ -103,7 +103,7 @@ public:
         for(int i=0;i<NUM_OF_ROBOMAS;i++){
             robomas_data[i].state.angle = robomas_[i]->get_angle();
             robomas_data[i].state.torque = robomas_[i]->get_torque();
-            robomas_data[i].state.vel = robomas_[i]->get_vel(robomas_data[i].state.gear_ratio) / M_PI_2;
+            robomas_data[i].state.vel = robomas_[i]->get_vel(robomas_data[i].state.gear_ratio);
             if(robomas_data[i].state.vel > 0.5){
                 if(robomas_data[i].state.angle < robomas_data[i].state.pre_angle){
                     robomas_data[i].state.rev++;
