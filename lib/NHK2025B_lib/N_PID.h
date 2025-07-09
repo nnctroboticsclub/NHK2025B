@@ -3,7 +3,7 @@
  *
  * @author Tsugaru Kenta (googology.fan@gmail.com)
  * @brief PID controller class
- * @version 1.0
+ * @version 1.0.1
  * @date 2025-06-11
  */
 
@@ -37,10 +37,9 @@ class NHK2025B_PID
 {
 public:
     NHK2025B_PID() : NHK2025B_PID(PidParameter()) {}
-    NHK2025B_PID(const PidParameter &param)
-    {
-        rep(i, NUM_OF_PID_CONTROLLER) pid_data[i].parameter = param;
-    }
+    NHK2025B_PID(const PidParameter &param) { rep(i, NUM_OF_PID_CONTROLLER) pid_data[i].parameter = param; }
+    NHK2025B_PID(const vector<PidParameter> &params) { rep(i, params.size()) if (i < NUM_OF_PID_CONTROLLER) pid_data[i].parameter = params[i]; }
+    NHK2025B_PID(const PidParameter *&params, int N) { rep(i, N) if (i < NUM_OF_PID_CONTROLLER) pid_data[i].parameter = params[i]; }
 
     void reset(int j = 0)
     {
