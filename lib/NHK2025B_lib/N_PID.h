@@ -129,12 +129,3 @@ void NHK2025B_PID::setProcessValue(int num, float val) { pid_data[num].cmd.proce
 void NHK2025B_PID::setParameter(int num, PidParameter param){ pid_data[num].parameter = param;}
 
 #endif // NHK2025B_PID_H
-
-// int ts = 1; // 制御周期[ms] // update_ts()関数で処理するため、1ms間隔
-// 他に必要なパラメータがあれば追加していって
-// vectorはmbedだとバグが起こりやすいのでやめてほしい
-// 変数名が変わっている, 引数の順番はnum, valでそろえてほしい
-// process_valueに代入している.process_valueは現在のセンサーの読み取り値
-// 前回の誤差も足している ie += e + prev_value
-// iで割っている ... Ki * ie / i ...
-// goal_valueにoutputを代入している. goal_valueは目標値
