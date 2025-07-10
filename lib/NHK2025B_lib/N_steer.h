@@ -83,12 +83,12 @@ public:
   /**
    * @brief set direction of steers for turning
    *
-   * @param cw -1: turning right, 0: not turning, 1: turning left
+   * @param ccw -1: turning right, 0: not turning, 1: turning left
    */
-  void setTurn(int cw)
+  void setTurn(int ccw)
   {
-    setDirFront(steer_data.parameter.servo_limit_deg * cw);
-    setDirBack(-steer_data.parameter.servo_limit_deg * cw);
+    setDirFront(steer_data.parameter.servo_limit_deg * ccw);
+    setDirBack(-steer_data.parameter.servo_limit_deg * ccw);
   }
 
   /**
