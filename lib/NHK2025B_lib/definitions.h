@@ -25,7 +25,7 @@
 #define NUM_OF_IKAKO_MDC 1
 #define NUM_OF_IKAKO_MD 4
 #define NUM_OF_PUROPO 2 // プロポの数
-#define NUM_OF_PID_CONTROLLER 1
+#define NUM_OF_PID_CONTROLLER 4
 #define NUM_OF_ARM 1
 #define CAN_FREQUENCY 1e6 // canの周波数。ロボますモータは1 [MHz]だけど、これまで部内のモジュールは50 [kHz]だから気をつけて
 
@@ -33,6 +33,34 @@
 #define STEER_MAX_VELOCITY 3.0 // [m/s]
 #define STEER_MAX_RAD M_PI_4   // [rad]
 #define ARM_MAX_EFFORT 5.0
+
+enum class Wheel{
+    FRONT_RIGHT,
+    FRONT_LEFT,
+    BACK_LEFT,
+    BACK_RIGHT
+};
+
+enum class TurnDirection
+{
+    CCW = 1, // Counter Clock Wise
+    CW = -1 // Clock Wise
+};
+
+enum class Direction
+{
+    FRONT = 0,
+    BACK = 1,
+    RIGHT = 2,
+    LEFT = 3
+};
+
+enum class ArmJoint
+{
+    JOINT1 = 0, // 根元のジョイント
+    JOINT2 = 1 // 人間の肘にあたるジョイント
+};
+
 // canの定義
 ikarashiCAN_mk2 can1(pins.CAN1_RD, pins.CAN1_TD, 0, CAN_FREQUENCY);
 ikarashiCAN_mk2 can2(pins.CAN2_RD, pins.CAN2_TD, 0, CAN_FREQUENCY);
