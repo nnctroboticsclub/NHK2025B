@@ -39,7 +39,6 @@ class NHK2025B_PID
 public:
     NHK2025B_PID() : NHK2025B_PID(PidParameter()) {}
     NHK2025B_PID(const PidParameter &param) { rep(i, NUM_OF_PID_CONTROLLER) pid_data[i].parameter = param; }
-    NHK2025B_PID(const vector<PidParameter> &params) { rep(i, params.size()) if (i < NUM_OF_PID_CONTROLLER) pid_data[i].parameter = params[i]; }
     NHK2025B_PID(const PidParameter *&params, int N) { rep(i, N) if (i < NUM_OF_PID_CONTROLLER) pid_data[i].parameter = params[i]; }
     NHK2025B_PID(std::array<PidParameter, NUM_OF_PID_CONTROLLER> params){ rep(i, NUM_OF_PID_CONTROLLER) pid_data[i].parameter = params[i]; }
 
@@ -52,7 +51,7 @@ public:
     void debug(int j, bool b);
     void print_debug(int j);
 
-    float calc(float e, int j);
+    float calc(int j, float e);
     float getOutput(int j);
 
     void setGoalValue(int num, float val);
@@ -83,9 +82,9 @@ private:
 
 #include <stdio.h>
 
-float NHK2025B_PID::calc(float val, int j = 0)
+float NHK2025B_PID::calc(int j, float val)
 {
-    float e = pid_data[j].cmd.process_value = val;
+    float e = val;
 
     float Kp = pid_data[j].parameter.kp;
     float Ki = pid_data[j].parameter.ki;
@@ -98,12 +97,12 @@ float NHK2025B_PID::calc(float val, int j = 0)
     float &output = pid_data[j].state.output;
     if (!i++)
         prev_error = e;
-    ie += e + prev_error;
-    float ret = offset + Kp * e + Ki * ie / i + Kd * (e - prev_error);
+    ie += e;
+    float ret = offset + Kp * e + Ki * ie + Kd * (e - prev_error);
     prev_error = e;
     output = ret * (rev * -2 + 1);
 
-    return pid_data[j].cmd.goal_value = output;
+    return pid_data[j].state.output = output;
 }
 float NHK2025B_PID::getOutput(int j = 0) { return pid_data[j].state.output; }
 
@@ -122,7 +121,7 @@ void NHK2025B_PID::print_debug(int j = 0)
 void NHK2025B_PID::update_ts()
 {
     for (int i = 0; i < NUM_OF_PID_CONTROLLER; i++)
-        pid_data[i].state.output = calc(pid_data[i].cmd.goal_value - pid_data[i].cmd.process_value, i);
+        pid_data[i].state.output = calc(i, pid_data[i].cmd.goal_value - pid_data[i].cmd.process_value);
 }
 
 void NHK2025B_PID::setGoalValue(int num, float val) { pid_data[num].cmd.goal_value = val; }
@@ -130,3 +129,12 @@ void NHK2025B_PID::setProcessValue(int num, float val) { pid_data[num].cmd.proce
 void NHK2025B_PID::setParameter(int num, PidParameter param){ pid_data[num].parameter = param;}
 
 #endif // NHK2025B_PID_H
+
+// int ts = 1; // 制御周期[ms] // update_ts()関数で処理するため、1ms間隔
+// 他に必要なパラメータがあれば追加していって
+// vectorはmbedだとバグが起こりやすいのでやめてほしい
+// 変数名が変わっている, 引数の順番はnum, valでそろえてほしい
+// process_valueに代入している.process_valueは現在のセンサーの読み取り値
+// 前回の誤差も足している ie += e + prev_value
+// iで割っている ... Ki * ie / i ...
+// goal_valueにoutputを代入している. goal_valueは目標値
