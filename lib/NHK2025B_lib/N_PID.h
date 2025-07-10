@@ -51,7 +51,12 @@ public:
     void print_debug(int j);
 
     float calc(float e, int j);
-    float get(int j);
+    float getOutput(int j);
+
+    void setGoalValue(int j, float val);
+    void setProcessValue(int j, float val);
+
+    void update_ts();
 
 private:
     struct
@@ -75,8 +80,10 @@ private:
 
 #include <stdio.h>
 
-float NHK2025B_PID::calc(float e, int j = 0)
+float NHK2025B_PID::calc(float val, int j = 0)
 {
+    float e = pid_data[j].cmd.process_value = val;
+
     float Kp = pid_data[j].parameter.kp;
     float Ki = pid_data[j].parameter.ki;
     float Kd = pid_data[j].parameter.kd;
@@ -93,9 +100,9 @@ float NHK2025B_PID::calc(float e, int j = 0)
     prev_error = e;
     output = ret * (rev * -2 + 1);
 
-    return output;
+    return pid_data[j].cmd.goal_value = output;
 }
-float NHK2025B_PID::get(int j = 0) { return pid_data[j].state.output; }
+float NHK2025B_PID::getOutput(int j = 0) { return pid_data[j].state.output; }
 
 void NHK2025B_PID::debug(int j = 0, bool b = true) { pid_data[j].cmd.Isdebug = b; }
 
@@ -108,5 +115,14 @@ void NHK2025B_PID::print_debug(int j = 0)
            pid_data[j].state.prev_error,
            pid_data[j].state.output);
 }
+
+void NHK2025B_PID::update_ts()
+{
+    for (int i = 0; i < NUM_OF_PID_CONTROLLER; i++)
+        pid_data[i].state.output = calc(pid_data[i].cmd.goal_value - pid_data[i].cmd.process_value, i);
+}
+
+void NHK2025B_PID::setGoalValue(int num, float val) { pid_data[num].cmd.goal_value = val; }
+void NHK2025B_PID::setProcessValue(int num, float val) { pid_data[num].cmd.process_value = val; }
 
 #endif // NHK2025B_PID_H
