@@ -26,7 +26,7 @@ public:
         TYPE_OF_M2006,
         TYPE_OF_M3508
     }type = TYPE_OF_M3508;
-    ikarashiCAN_mk2 *ican_ptr = &can2;
+    ikarashiCAN_mk2 *ican_ptr = &can1;
 };
 
 class NHK2025B_Robomas{
@@ -189,6 +189,12 @@ public:
         return robomas_data[num].state.angle;
     }
 
+    float getAbsAngle(int num)
+    {
+        return robomas_data[num].state.abs_angle;
+    }
+
+
     /**
      * @brief 回転速度を取得する
      * 
@@ -263,6 +269,7 @@ private:
             float angle;
             float vel;
             float torque; // [N]
+
         }state;
         RobomasParameter parameter;
     }robomas_data[NUM_OF_ROBOMAS];

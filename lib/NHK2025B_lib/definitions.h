@@ -16,7 +16,7 @@
 #include "pinconfig.h"
 
 #define NUM_OF_CAN 2
-#define NUM_OF_ROBOMAS_M3508 0 // m3508モータの数
+#define NUM_OF_ROBOMAS_M3508 1 // m3508モータの数
 #define NUM_OF_ROBOMAS_M2006 1 // m2006モータの数
 #define NUM_OF_ROBOMAS (NUM_OF_ROBOMAS_M2006+NUM_OF_ROBOMAS_M3508)
 #define NUM_OF_SERVO 3         // サーボモータの数

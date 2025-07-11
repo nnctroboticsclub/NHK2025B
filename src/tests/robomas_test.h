@@ -46,25 +46,50 @@ int main()
     ticker.attach(&update_ts,1ms);
     can1.read_start();
     can2.read_start();
+    DigitalOut myemc(PA_5);
+    DigitalIn mybo(BUTTON1);
+    float goal = 22;
+    float sensor;
+    float error;
+    float kp = 0.03;
+    float power;
     int cnt_100ms = 0;
     while(1){
         ES = 1;
+        myemc = 1;
         if(cnt_1ms > 100){
-            print_debug();
+            //print_debug();
+            //printf("%f",robomas.getAbsAngle(0));
+            printf("%lf,   %lf,   %lf\n",sensor,goal,error);
             puts("");
             cnt_1ms = 0;
             cnt_100ms++;
         }
-        if(button){
-            robomas.resetState(0);
-        }
-        for(int i=0;i<NUM_OF_ROBOMAS;i++){
-            robomas.setCurrent(i,cnt_100ms / 20.0);
-        }
+        // if(button){
+        //    robomas.resetState(0);
+        // }
+        // for(int i=0;i<NUM_OF_ROBOMAS;i++){
+        //     robomas.setCurrent(i,cnt_100ms / 20.0);
+        // }
         cnt_100ms %= 20;
         robomas.update();
         can1.update();
         can2.update();
+        robomas.getAbsAngle(0);
+        sensor = robomas.getAbsAngle(0);
+        error = goal - sensor;
+        if(error<=22 && error>=0){  //22がちょうどいいかも
+            if(mybo==1){
+              power=error*kp;  
+            }
+            else if(mybo==0){
+                power=error*-kp;
+            }
+        }
+        else{
+            power = 0;
+        }
+        robomas.setCurrent(0,power);
         ThisThread::sleep_for(1ms);
     }
 }
