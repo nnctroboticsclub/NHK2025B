@@ -90,6 +90,7 @@ void print_debug()
 
     // steer.print_debug();
     can1.print_debug();
+    puts("");
     can2.print_debug();
 }
 
@@ -137,7 +138,7 @@ int main()
             printf(">real_OmegaL:%f\n",robomas.getVeclocity(0));
             printf(">back_currentR:%f\n",back_currentR);
             printf(">back_currentL:%f\n",back_currentL);
-            // print_debug();
+            print_debug();
             // puts("");
         }
         // printf("ang:%0.3f,vel:%0.3f,R:%0.3f,L:%0.3f",cmd_angle,cmd_vel, back_omegaR,back_omegaL);
@@ -183,14 +184,14 @@ int main()
 
         servo.setAngle(1, M_PI / 180 * 120 + cmd_angle);
         servo.setAngle(0, M_PI / 180 * 120 - cmd_angle);
-        // robomas.setCurrent(0, cmd_vel);
-        // robomas.setCurrent(1, -cmd_vel);
+        robomas.setCurrent(0, cmd_vel*5.0);
+        robomas.setCurrent(1, -cmd_vel*5.0);
         
         // robomas.setCurrent(0,back_omegaR);
         // robomas.setCurrent(1,back_omegaL);
 
-        robomas.setCurrent(0, back_currentL = robomas_pid.getOutput(0));
-        robomas.setCurrent(1, back_currentR = robomas_pid.getOutput(1));
+        // robomas.setCurrent(0, back_currentL = robomas_pid.getOutput(0));
+        // robomas.setCurrent(1, back_currentR = robomas_pid.getOutput(1));
         update();
         ThisThread::sleep_for(1ms); // ちょっと待ってあげたほうがいいかも
     }

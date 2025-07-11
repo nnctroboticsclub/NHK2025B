@@ -16,8 +16,8 @@
 #include "pinconfig.h"
 
 #define NUM_OF_CAN 2
-#define NUM_OF_ROBOMAS_M3508 4 // m3508モータの数
-#define NUM_OF_ROBOMAS_M2006 0 // m2006モータの数
+#define NUM_OF_ROBOMAS_M3508 0 // m3508モータの数
+#define NUM_OF_ROBOMAS_M2006 1 // m2006モータの数
 #define NUM_OF_ROBOMAS (NUM_OF_ROBOMAS_M2006+NUM_OF_ROBOMAS_M3508)
 #define NUM_OF_SERVO 3         // サーボモータの数
 #define NUM_OF_SERVO_BOARD 1   // canサーボ基板の数（1個につきサーボ8個動かせる）
@@ -47,15 +47,25 @@ enum class TurnDirection
     CW = -1 // Clock Wise
 };
 
-enum class Direction
+enum class Direction1
 {
     FRONT = 0,
     BACK = 1,
-    RIGHT = 2,
-    LEFT = 3
 };
 
-enum class ArmJoint
+enum class Direction2
+{
+    RIGHT = 0,
+    LEFT = 1
+};
+
+enum class ArmJoint1
+{
+    JOINT1 = 0, // 根元のジョイント
+    JOINT2 = 1 // 人間の肘にあたるジョイント
+};
+
+enum class ArmJoint2
 {
     JOINT1 = 0, // 根元のジョイント
     JOINT2 = 1 // 人間の肘にあたるジョイント

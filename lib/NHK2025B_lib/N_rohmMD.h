@@ -42,9 +42,9 @@ public:
     void setup()
     {
         cnt = 0;
-        for(int i=0;i<NUM_OF_ROHM_MD;i++){
-            md[i].print_debug();
-        }
+        // for(int i=0;i<NUM_OF_ROHM_MD;i++){
+        //     md[i].print_debug();
+        // }
     }
 
     /**
@@ -101,11 +101,11 @@ private:
         struct{
             float power;
         }cmd;
-        struct{
-            float angle;
-            float velocity;
-            float current;
-        }state;
+        // struct{
+        //     float angle;
+        //     float velocity;
+        //     float current;
+        // }state;
         RohmMdParameter parameter;
     }rohmMD_data[NUM_OF_ROHM_MD];
     int cnt = 0;
