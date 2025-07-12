@@ -7,8 +7,7 @@
 #include "N_rohmMD.h"
 #include "QEI.h"
 
-DigitalIn button1(BUTTON1);
-// DigitalIn button1(pins.SW1);
+DigitalIn button1(pins.SW1);
 DigitalIn button2(pins.SW2);
 DigitalIn button3(pins.SW3);
 Timer enc_timer;
@@ -23,10 +22,10 @@ std::array<RobomasParameter, NUM_OF_ROBOMAS> robomas_params{
 };
 std::array<RohmMdParameter, NUM_OF_ROHM_MD> rohm_params{{
     []{RohmMdParameter p;
-        p.id = 1, p.ican = &can1;
+        p.id = 1, p.ican = &can2;
         return p;}(),
     []{RohmMdParameter p;
-        p.id = 2, p.ican = &can1;
+        p.id = 2, p.ican = &can2;
         return p;}(),
 }};
 NHK2025B_Robomas robomas(robomas_params);
@@ -47,7 +46,7 @@ void setup()
     // controller.setup();
     // arm.setup();
     enc_timer.start();
-    can1.read_start();
+    // can1.read_start();
     // can2.read_start();
 }
 
@@ -59,7 +58,7 @@ void update()
     // controller.update();
     // arm.udpate();
     can1.update();
-    // can2.update();
+    can2.update();
 }
 
 int cnt_1ms = 0;
@@ -84,7 +83,7 @@ void print_debug()
     // robomas.print_debug();
     // puropo.print_debug();
     // can2.print_debug();
-    can1.print_debug();
+    can2.print_debug();
 }
 
 int main()
@@ -94,6 +93,7 @@ int main()
     ticker.attach(&update_1ms,1ms);
     ES=1;
     float current = 0;
+    int cnt100ms = 0;
     while(1){
         if(cnt_1ms > 100){
             printf(">current:%f\n",current);
@@ -104,6 +104,7 @@ int main()
             cnt_1ms = 0;
             current += (!button1) * 0.1;
             current -= button2 * 0.1;
+            cnt100ms++;
         }
         // controller.setArmEffort(puropo.getLeftY(0));
         // arm.setEffort(0,controller.getArmEffort());
@@ -115,8 +116,9 @@ int main()
         if(current > 5.0) current = 5.0;
         if(current < -5.0) current = -5.0;
         robomas.setCurrent(0,current);
-        rohm.setPower(0,current/5.0);
-        rohm.setPower(1,current/5.0);
+        current = sin(cnt100ms / 10.0 * M_PI);
+        rohm.setPower(0,current);
+        rohm.setPower(1,current);
         update();
         // ThisThread::sleep_for();
     }
