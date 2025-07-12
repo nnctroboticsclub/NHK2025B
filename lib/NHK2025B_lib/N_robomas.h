@@ -18,6 +18,7 @@
 
 #include "definitions.h"
 
+#define M3508_MAX_RAD_PER_SEC 50.0f
 class RobomasParameter{
 public:
     int robomas_id = 1;
