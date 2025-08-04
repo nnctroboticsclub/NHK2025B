@@ -18,21 +18,21 @@ std::array<ServoParameter, NUM_OF_SERVO> servo_param{{
 // ロボマスパラメータ設定
 std::array<RobomasParameter, NUM_OF_ROBOMAS> robomas_param{{
     []
-    { RobomasParameter p; p.robomas_id = 1; return p; }(),
-    []
-    { RobomasParameter p; p.robomas_id = 2; return p; }(),
+    { RobomasParameter p; p.robomas_id = 4; return p; }(),
     []
     { RobomasParameter p; p.robomas_id = 3; return p; }(),
     []
-    { RobomasParameter p; p.robomas_id = 4; return p; }(),
+    { RobomasParameter p; p.robomas_id = 1; return p; }(),
+    []
+    { RobomasParameter p; p.robomas_id = 2; return p; }(),
 }};
 
 // PID
 std::array<PidParameter, NUM_OF_ROBOMAS> robomas_pid_param{
     []{ PidParameter p; p.kp = 0.6,p.kd = 0.101, p.out_max = 2.0; return p;}(),
     []{ PidParameter p; p.kp = 0.6,p.kd = 0.101, p.out_max = 2.0; return p;}(),
-    []{ PidParameter p; p.kp = 5.0, p.out_max = 2.0; return p;}(),
-    []{ PidParameter p; p.kp = 5.0, p.out_max = 2.0; return p;}(),
+    []{ PidParameter p; p.kp = 0.6, p.kd = 0.101; return p;}(),
+    []{ PidParameter p; p.kp = 0.6, p.kd = 0.101; return p;}(),
 };
 
 NHK2025B_Servo servo(servo_param);
@@ -63,6 +63,8 @@ void update_1ms()
     puropo.update_ts();
     robomas_pid.setProcessValue(0,robomas.getVeclocity(0));
     robomas_pid.setProcessValue(1,robomas.getVeclocity(1));
+    robomas_pid.setProcessValue(2,robomas.getVeclocity(2));
+    robomas_pid.setProcessValue(3,robomas.getVeclocity(3));
     robomas_pid.update_ts();
     cnt_1ms++;
 }
@@ -116,7 +118,7 @@ int main()
     // 右輪のタイヤの中心から左輪のタイヤの中心までの長さ
     float track_width = 400e-3; // [m]
     // タイヤの半径
-    float wheel_radius = 152e-3; // [m]
+    float wheel_radius = 76e-3; // [m]
     float turning_radius; // 回転半径(右輪と左輪の中心が円の線を通る)[m]
     float back_omegaL,back_omegaR,front_omegaL,front_omegaR; // 各車輪の角速度[rad/s]
     float *wheel_omega[] = {&front_omegaR, &front_omegaL, &back_omegaL, &back_omegaR}; // 角速度の配列
@@ -132,13 +134,13 @@ int main()
         if (cnt_1ms > 100)
         {
             cnt_1ms = 0;
-            printf(">back_OmegaR:%f\n",back_omegaR);
-            printf(">back_OmegaL:%f\n",back_omegaL);
-            printf(">real_OmegaR:%f\n",robomas.getVeclocity(1));
-            printf(">real_OmegaL:%f\n",robomas.getVeclocity(0));
-            printf(">back_currentR:%f\n",back_currentR);
-            printf(">back_currentL:%f\n",back_currentL);
-            print_debug();
+            // printf(">back_OmegaR:%f\n",back_omegaR);
+            // printf(">back_OmegaL:%f\n",back_omegaL);
+            // printf(">real_OmegaR:%f\n",robomas.getVeclocity(0));
+            // printf(">real_OmegaL:%f\n",robomas.getVeclocity(1));
+            // printf(">back_currentR:%f\n",back_currentR);
+            // printf(">back_currentL:%f\n",back_currentL);
+            // print_debug();
             // puts("");
         }
         // printf("ang:%0.3f,vel:%0.3f,R:%0.3f,L:%0.3f",cmd_angle,cmd_vel, back_omegaR,back_omegaL);
@@ -149,6 +151,7 @@ int main()
         // controller.setSteerVelocity(puropo.getLeftY(0));
         // controller.setSteerTurn(puropo.getRightX(0));
         led[1] = puropo.getCommunicatable(0);
+        // ES = puropo.getCommunicatable(0) & (puropo.getAxis(0, 10) == 1);
         ES = puropo.getCommunicatable(0);
 
         // steer.setTurn(controller.getSteerTurn());
@@ -172,26 +175,40 @@ int main()
         back_vR = cmd_vel - (cmd_vel*(track_width/2) / turning_radius);
         back_vL = cmd_vel + (cmd_vel*(track_width/2) / turning_radius);
 
-        front_omegaR = front_vR / wheel_radius;
-        front_omegaL = -front_vL / wheel_radius;
-        back_omegaR = back_vR / wheel_radius;
-        back_omegaL = -back_vL / wheel_radius;
+        front_omegaR = -front_vR / wheel_radius;
+        front_omegaL = front_vL / wheel_radius;
+        back_omegaR = -back_vR / wheel_radius;
+        back_omegaL = back_vL / wheel_radius;
 
-        robomas_pid.setGoalValue(0,back_omegaL);
-        robomas_pid.setGoalValue(1,back_omegaR);
+        enum{
+            HIGH_SPEED = 10,
+            NOMAL_SPEED = 3,
+            LOW_SPEED = 1
+        }speed_mode;
+        front_omegaR = -puropo.getRightY(0) * 5 * ((puropo.getAxis(0,8) == 1)?HIGH_SPEED:(puropo.getAxis(0,8) == -1)?LOW_SPEED:NOMAL_SPEED);
+        front_omegaL = puropo.getLeftY(0) * 5 * ((puropo.getAxis(0,8) == 1)?HIGH_SPEED:(puropo.getAxis(0,8) == -1)?LOW_SPEED:NOMAL_SPEED);
+        back_omegaR = -puropo.getRightY(0) * 5 * ((puropo.getAxis(0,8) == 1)?HIGH_SPEED:(puropo.getAxis(0,8) == -1)?LOW_SPEED:NOMAL_SPEED);
+        back_omegaL = puropo.getLeftY(0) * 5 * ((puropo.getAxis(0,8) == 1)?HIGH_SPEED:(puropo.getAxis(0,8) == -1)?LOW_SPEED:NOMAL_SPEED);
+
+        robomas_pid.setGoalValue(0,front_omegaL);
+        robomas_pid.setGoalValue(1,front_omegaR);
+        robomas_pid.setGoalValue(2,back_omegaL);
+        robomas_pid.setGoalValue(3,back_omegaR);
         
         cmd_vel *= 5.0;
 
+        servo.setAngle(0, M_PI / 180 * 120 + cmd_angle);
         servo.setAngle(1, M_PI / 180 * 120 + cmd_angle);
-        servo.setAngle(0, M_PI / 180 * 120 - cmd_angle);
-        robomas.setCurrent(0, cmd_vel*5.0);
-        robomas.setCurrent(1, -cmd_vel*5.0);
+        // robomas.setCurrent(0, cmd_vel*5.0);
+        // robomas.setCurrent(1, -cmd_vel*5.0);
         
         // robomas.setCurrent(0,back_omegaR);
         // robomas.setCurrent(1,back_omegaL);
 
-        // robomas.setCurrent(0, back_currentL = robomas_pid.getOutput(0));
-        // robomas.setCurrent(1, back_currentR = robomas_pid.getOutput(1));
+        robomas.setCurrent(0, robomas_pid.getOutput(0));
+        robomas.setCurrent(1, robomas_pid.getOutput(1));
+        robomas.setCurrent(2, back_currentL = robomas_pid.getOutput(2));
+        robomas.setCurrent(3, back_currentR = robomas_pid.getOutput(3));
         update();
         ThisThread::sleep_for(1ms); // ちょっと待ってあげたほうがいいかも
     }

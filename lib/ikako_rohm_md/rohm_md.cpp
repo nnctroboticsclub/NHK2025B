@@ -16,6 +16,8 @@ void RohmMD::set(uint8_t mode, float ref)
     ref_data.mode = mode;
     // refを一回ごとに1bit変更
     // -1 < ref < 1にする
+    ref = (ref < 1)?ref:0.99999;
+    ref = (ref > -1)?ref:-0.99999;
     ref_data.ref = ref * pow(2, 15);
 }
 

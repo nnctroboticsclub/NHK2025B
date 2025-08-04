@@ -12,11 +12,9 @@ public:
 
 class NHK2025B_Arm{
 public:
-    NHK2025B_Arm(std::array<ArmParameter, NUM_OF_ARM> param = {{ArmParameter()}})
+    NHK2025B_Arm(ArmParameter param)
     {
-        for(int i=0;i<param.size();i++){
-            arm_data[i].parameter = param[i];
-        }
+        ;
     }
 
     void setup()

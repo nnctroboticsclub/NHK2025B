@@ -60,7 +60,11 @@ public:
             pid_data[i].state.output = calc(pid_data[i].cmd.goal_value - pid_data[i].cmd.process_value,i);
         }
     }
-    float getOutput(int num){ return pid_data[num].state.output; }
+    float getOutput(int num){ 
+        if(pid_data[num].state.output > pid_data[num].parameter.out_max) pid_data[num].state.output = pid_data[num].parameter.out_max;
+        if(pid_data[num].state.output < -pid_data[num].parameter.out_max) pid_data[num].state.output = -pid_data[num].parameter.out_max;
+        return pid_data[num].state.output;
+    }
     void setGoalValue(int num, float val){ pid_data[num].cmd.goal_value = val; }
     void setProcessValue(int num, float val){ pid_data[num].cmd.process_value = val; }
 
