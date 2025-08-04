@@ -59,18 +59,6 @@ enum class Direction2
     LEFT = 1
 };
 
-enum class ArmJoint1
-{
-    JOINT1 = 0, // 根元のジョイント
-    JOINT2 = 1 // 人間の肘にあたるジョイント
-};
-
-enum class ArmJoint2
-{
-    JOINT1 = 0, // 根元のジョイント
-    JOINT2 = 1 // 人間の肘にあたるジョイント
-};
-
 // canの定義
 ikarashiCAN_mk2 can1(pins.CAN1_RD, pins.CAN1_TD, 0, CAN_FREQUENCY);
 ikarashiCAN_mk2 can2(pins.CAN2_RD, pins.CAN2_TD, 0, CAN_FREQUENCY);
