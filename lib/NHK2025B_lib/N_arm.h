@@ -1,3 +1,12 @@
+/**
+ * @brief N_arm.h
+ * @author 高野 絆(takanokiduna@gmail.com)
+ * @brief NHK2025Bのアームクラス
+ * @version 0.1
+ * @date 2025-08-05
+ * 
+ * @copyright Copyright (c) 2025
+ */
 #ifndef NHK2025B_ARM_H
 #define NHK2025B_ARM_H
 
@@ -28,41 +37,93 @@ public:
         ;
     }
 
+    /**
+     * @brief アームが握るかどうかをセットする
+     * 
+     * @param dir2 アームの左右
+     * @param is_holding trueなら握る, falseなら握らない
+     */
     void setHolding(Direction2 dir2,bool is_holding)
     {
         arm_data[(int)dir2].cmd.is_holding = is_holding;
     }
 
+    /**
+     * @brief アームのグリップ目標位置をセットする
+     * 
+     * @param dir2 アームの左右
+     * @param pos グリップ目標位置 [mm]
+     */
     void setGripPosition(Direction2 dir2,float pos)
     {
         arm_data[(int)dir2].cmd.grip_pos = pos;
     }
 
+    /**
+     * @brief アームの角度をセットする
+     * 
+     * @param dir2 アームの左右
+     * @param angle アームの角度 [rad]
+     */
     void setArmAngle(Direction2 dir2,float angle)
     {
         arm_data[(int)dir2].cmd.arm_angle = angle;
     }
 
+    /**
+     * @brief アームのパラメータをセットする
+     * 
+     * @param dir2 アームの左右
+     * @param param アームのパラメータ
+     */
     void setParameter(Direction2 dir2,ArmParameter param)
     {
         arm_data[(int)dir2].parameter = param;
     }
 
+    /**
+     * @brief アームが握っているかどうかを取得する
+     * 
+     * @param dir2 アームの左右
+     * 
+     * @return true: 握っている, false: 握っていない
+     */
     bool getHolding(Direction2 dir2)
     {
         return arm_data[(int)dir2].cmd.is_holding;
     }
 
+    /**
+     * @brief アームのグリップ目標位置を取得する
+     * 
+     * @param dir2 アームの左右
+     * 
+     * @return グリップ目標位置 [mm]
+     */
     float getGripPosition(Direction2 dir2)
     {
         return arm_data[(int)dir2].cmd.grip_pos;
     }
 
+    /**
+     * @brief アームの角度を取得する
+     * 
+     * @param dir2 アームの左右
+     * 
+     * @return アームの角度 [rad]
+     */
     float getArmAngle(Direction2 dir2)
     {
         return arm_data[(int)dir2].cmd.arm_angle;
     }
 
+    /**
+     * @brief アームのパラメータを取得する
+     * 
+     * @param dir2 アームの左右
+     * 
+     * @return アームのパラメータ
+     */
     ArmParameter getParameter(Direction2 dir2)
     {
         return arm_data[(int)dir2].parameter;
