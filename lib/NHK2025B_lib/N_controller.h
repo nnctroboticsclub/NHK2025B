@@ -77,9 +77,13 @@ public:
      */
     void setSteerTurn(float val)
     {
-        val = 0;
-        controller_data.cmd.steer.turn = (val > controller_data.parameter.steer.cw_border)?1:val;
-        controller_data.cmd.steer.turn = (val < -controller_data.parameter.steer.cw_border)?-1:val;
+        if(val > controller_data.parameter.steer.cw_border){
+            controller_data.cmd.steer.turn = 1;
+        }else if(val < -controller_data.parameter.steer.cw_border){
+            controller_data.cmd.steer.turn = -1;
+        }else{
+            controller_data.cmd.steer.turn = 0;
+        }
     }
 
     /**
@@ -164,7 +168,7 @@ public:
         printf("|");
         printf("dir: %0.2f",controller_data.cmd.steer.dir);
         printf("|");
-        printf("turn: %c",(controller_data.cmd.steer.turn == 1)?'L':(controller_data.cmd.steer.turn == -1)?'R':'N');
+        printf("turn: %c",(controller_data.cmd.steer.turn == 1)?'R':(controller_data.cmd.steer.turn == -1)?'L':'N');
         printf("}");
         printf("|");
 

@@ -215,6 +215,7 @@ private:
     bool allow_write = true;
 
     int this_msgID;
+    int can_id;
 
     Timer timer;
     long long int time_r[2] = {0};

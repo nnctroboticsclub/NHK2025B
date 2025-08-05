@@ -1,7 +1,18 @@
+#include "mbed.h"
 #include "N_servo.h"
 #include "N_steer.h"
+#include "definitions.h"
 
-NHK_servo servo(&can1, 1);
+std::array<ServoParameter, NUM_OF_SERVO> servo_param{{
+  []{ServoParameter p;
+  p.id = 0;
+  return p;}(),
+  []{ServoParameter p;
+  p.id = 1;
+  return p;}(),
+}};
+
+NHK2025B_Servo servo(servo_param);
 NHK2025B_Steer steer;
 Thread thread;
 
@@ -9,7 +20,7 @@ void send_thread()
 {
   while (true)
   {
-    servo.update();
+    servo.write();
     ThisThread::sleep_for(1ms);
   }
 }
@@ -43,8 +54,11 @@ int main()
       break;
     }
     printf("front: %f(%d), back: %f(%d), velocity: %f\n", steer.getFrontAngle(), rad2deg(steer.getFrontAngle()), steer.getBackAngle(), rad2deg(steer.getBackAngle()), steer.getVelocity());
-    servo.set_deg(0, rad2deg(steer.getFrontAngle()), steer.getMaxAngle());
-    servo.set_deg(1, rad2deg(steer.getBackAngle()), steer.getMaxAngle());
+    can1.print_debug();
+    puts("");
+    servo.setAngle(0, steer.getFrontAngle());
+    servo.setAngle(1, steer.getBackAngle());
+    servo.update();
     ThisThread::sleep_for(2s);
   }
   return 0;

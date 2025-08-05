@@ -1,45 +1,290 @@
 #include <mbed.h>
-#include "N_controller.h"
 #include "N_PID.h"
 #include "N_puropo.h"
 #include "N_robomas.h"
+#include "N_rohmMD.h"
 #include "N_servo.h"
 #include "N_steer.h"
+#include "N_arm.h"
+#include "QEI.h"
+
+// NUM_OF_ROBOMAS_M3508 4
+// NUM_OF_ROBOMAS_M2006 2
+// NUM_OF_SERVO 2
+// NUM_OF_ROHM_MD 2
+// NUM_OF_PUROPO 2
+// NUM_OF_PID_CONTROLLER 4
+// NUM_OF_ARM 2
+
+#define CH_A 5
+#define CH_B 6
+#define CH_C 7
+#define CH_E 8
+#define CH_F 9
+#define CH_G 5
+#define CH_H 5
+#define CH_VR 5
+#define STEER_ROBOMAS_OF(x) (x+0)
+#define ARM_ROBOMAS_OF(x) (x+4)
+#define ARM_HAND_PID_OF(x) (x+0)
+#define ARM_JOINT_PID_OF(x) (x+2)
+
+std::array<RobomasParameter, NUM_OF_ROBOMAS> robomas_params{
+    // 右前輪
+    []{RobomasParameter p;
+        p.robomas_id = 1, p.type = RobomasParameter::TYPE_OF_M3508, p.ican_ptr = &can1;
+        return p;
+    }(),
+    // 左前輪
+    []{RobomasParameter p;
+        p.robomas_id = 2, p.type = RobomasParameter::TYPE_OF_M3508, p.ican_ptr = &can1;
+        return p;
+    }(),
+    // 左後輪
+    []{RobomasParameter p;
+        p.robomas_id = 3, p.type = RobomasParameter::TYPE_OF_M3508, p.ican_ptr = &can1;
+        return p;
+    }(),
+    // 右後輪
+    []{RobomasParameter p;
+        p.robomas_id = 4, p.type = RobomasParameter::TYPE_OF_M3508, p.ican_ptr = &can1;
+        return p;
+    }(),
+    // 右ハンド
+    []{RobomasParameter p;
+        p.robomas_id = 1, p.type = RobomasParameter::TYPE_OF_M2006, p.ican_ptr = &can2;
+        return p;
+    }(),
+    // 左ハンド
+    []{RobomasParameter p;
+        p.robomas_id = 2, p.type = RobomasParameter::TYPE_OF_M2006, p.ican_ptr = &can2;
+        return p;
+    }(),
+};
+
+std::array<RohmMdParameter, NUM_OF_ROHM_MD> rohm_params{
+    // 右ジョイント
+    []{RohmMdParameter p;
+        p.id = 1, p.ican = &can2;
+        return p;
+    }(),
+    // 左ジョイント
+    []{RohmMdParameter p;
+        p.id = 2, p.ican = &can2;
+        return p;
+    }(),
+};
+
+std::array<ServoParameter, NUM_OF_SERVO> servo_params{
+    // 前ステア
+    []{ServoParameter p;
+        p.id = 1, p.board_id = 1, p.ican = &can1;
+        return p;
+    }(),
+    // 後ステア
+    []{ServoParameter p;
+        p.id = 2, p.board_id = 1, p.ican = &can1;
+        return p;
+    }()
+};
+
+std::array<PidParameter, NUM_OF_PID_CONTROLLER> arm_pid_params{
+    // ハンド右
+    []{PidParameter p;
+        p.kp = 0.05;
+        p.out_max = 0.9;
+        return p;
+    }(),
+    // ハンド左
+    []{PidParameter p;
+        p.kp = 0.05;
+        p.out_max = 0.9;
+        return p;
+    }(),
+    // ジョイント右
+    []{PidParameter p;
+        p.kp = 0.05;
+        p.out_max = 0.9;
+        return p;
+    }(),
+    // ジョイント左
+    []{PidParameter p;
+        p.kp = 0.05;
+        p.out_max = 0.9;
+        return p;
+    }()
+};
+
+std::array<PidParameter, NUM_OF_PID_CONTROLLER> steer_robomas_pid_params{
+    // 右前輪
+    []{PidParameter p;
+        p.kp = 0.05;
+        p.out_max = 0.9;
+        return p;
+    }(),
+    // 左前輪
+    []{PidParameter p;
+        p.kp = 0.05;
+        p.out_max = 0.9;
+        return p;
+    }(),
+    // 左後輪
+    []{PidParameter p;
+        p.kp = 0.05;
+        p.out_max = 0.9;
+        return p;
+    }(),
+    // 右後輪
+    []{PidParameter p;
+        p.kp = 0.05;
+        p.out_max = 0.9;
+        return p;
+    }(),
+};
+
+std::array<ArmParameter, NUM_OF_ARM> arm_parameter{
+    // 右
+    []{ArmParameter p;
+        return p;
+    }(),
+    // 左
+    []{ArmParameter p;
+        return p;
+    }()
+};
 
 NHK2025B_Puropo puropo;
 
-NHK2025B_Servo servo;
-NHK2025B_Robomas robomas;
+NHK2025B_Servo servo(servo_params);
+NHK2025B_Robomas robomas(robomas_params);
+NHK2025B_RohmMD rohm(rohm_params);
+NHK2025B_PID arm_pid(arm_pid_params);
+NHK2025B_PID steer_pid(steer_robomas_pid_params);
+NHK2025B_Arm arm(arm_parameter);
 
-NHK2025B_Controller controller;
-
+Timer enc_timer;
+std::array<QEI, 2> arm_qei{
+    QEI(PC_10, PC_11, NC, 50, &enc_timer, QEI::X2_ENCODING), // CH_A
+    QEI(PC_12, PD_2, NC, 50, &enc_timer, QEI::X2_ENCODING)  // CH_B
+};
 
 Ticker ticker;
 Thread thread;
 
+void setup(){
+    robomas.setup();
+    rohm.setup();
+    servo.setup();
+    arm.setup();
+    puropo.setup();
+
+}
+
+void update(){
+    robomas.update();
+    rohm.update();
+
+    arm.update();
+    can1.update();
+    can2.update();
+}
+
+int cnt_1ms = 0;
 void update_1ms(){
-    ;
+    cnt_1ms++;
+    arm_pid.setProcessValue(
+        ARM_HAND_PID_OF((int)Direction2::RIGHT),
+        arm_qei[(int)Direction2::RIGHT].getAngle()
+    );
+    arm_pid.setProcessValue(
+        ARM_HAND_PID_OF((int)Direction2::LEFT),
+        arm_qei[(int)Direction2::LEFT].getAngle()
+    );
+    arm_pid.setProcessValue(
+        ARM_JOINT_PID_OF((int)Direction2::RIGHT),
+        robomas.getAngle((int)Direction2::RIGHT)
+    );
+    arm_pid.setProcessValue(
+        ARM_JOINT_PID_OF((int)Direction2::LEFT), 
+        robomas.getAngle((int)Direction2::LEFT)
+    );
+    arm_pid.update_ts();
 }
 
 void send_thread(){
     while(1){
-        
+        robomas.write();
+        rohm.write();
         ThisThread::sleep_for(1ms);
     }
 }
 
-void setup(){
-    ticker.attach(&update_1ms,1ms);
-    thread.start(&send_thread);
-}
-
-void update(){
-    ;
-}
 
 int main(){
     setup();
+    ticker.attach(&update_1ms,1ms);
+    thread.start(&send_thread);
+    can1.read_start();
+    can2.read_start();
+    enc_timer.start();
+    ES = 1;
     while(1){
+        if(cnt_1ms > 100){
+            puts("");
+        }
+        // プロポからそれぞれの値を取得
+        arm.setHolding(
+            Direction2::RIGHT,
+            puropo.getAxis(0, CH_A)==-1.0
+        );
+        arm.setHolding(
+            Direction2::LEFT,
+            puropo.getAxis(0, CH_B)==-1.0
+        );
+        arm.setArmAngle(
+            Direction2::RIGHT,
+            puropo.getRightY(0)
+        );
+        arm.setArmAngle(
+            Direction2::LEFT,
+            puropo.getLeftY(0)
+        );
+
+        // pidにセット
+        arm_pid.setGoalValue(
+            ARM_HAND_PID_OF((int)Direction2::RIGHT),
+            arm.getGripPosition(Direction2::RIGHT)
+        );
+        arm_pid.setGoalValue(
+            ARM_HAND_PID_OF((int)Direction2::LEFT),
+            arm.getGripPosition(Direction2::LEFT)
+        );
+        arm_pid.setGoalValue(
+            ARM_JOINT_PID_OF((int)Direction2::RIGHT),
+            arm.getArmAngle(Direction2::RIGHT)
+        );
+        arm_pid.setGoalValue(
+            ARM_JOINT_PID_OF((int)Direction2::LEFT),
+            arm.getArmAngle(Direction2::LEFT)
+        );
+
+        // アクチュエータに出力をセット
+        robomas.setCurrent(
+            ARM_ROBOMAS_OF((int)Direction2::RIGHT),
+            arm_pid.getOutput(ARM_HAND_PID_OF((int)Direction2::RIGHT))
+        );
+        robomas.setCurrent(
+            ARM_ROBOMAS_OF((int)Direction2::LEFT),
+            arm_pid.getOutput(ARM_HAND_PID_OF((int)Direction2::LEFT))
+        );
+        rohm.setPower(
+            (int)Direction2::RIGHT,
+            arm_pid.getOutput(ARM_JOINT_PID_OF((int)Direction2::RIGHT))
+        );
+        rohm.setPower(
+            (int)Direction2::LEFT,
+            arm_pid.getOutput(ARM_JOINT_PID_OF((int)Direction2::LEFT))
+        );
         update();
     }
 }
