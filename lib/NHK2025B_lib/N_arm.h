@@ -129,11 +129,16 @@ public:
         return arm_data[(int)dir2].parameter;
     }
 
-    void udpate()
+    void update()
     {
         for(int i=0;i<2;i++){
             arm_data[i].state.distance_to_hand = sin(arm_data[i].cmd.arm_angle) * arm_data[i].parameter.arm_length;
             arm_data[i].state.height_to_hand = cos(arm_data[i].cmd.arm_angle) * arm_data[i].parameter.arm_length;
+            if(arm_data[i].cmd.is_holding){
+                arm_data[i].state.grip_pos = arm_data[i].parameter.max_grip_position;
+            }else{
+                arm_data[i].state.grip_pos = 0;
+            }
         }
     }
 public:

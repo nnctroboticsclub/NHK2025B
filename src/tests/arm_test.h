@@ -300,7 +300,7 @@ void update()
     rohm.update();
     // puropo.update();
     // controller.update();
-    arm.udpate();
+    arm.update();
     can1.update();
     can2.update();
 }
