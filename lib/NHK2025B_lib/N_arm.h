@@ -45,6 +45,7 @@ public:
      */
     void setHolding(Direction2 dir2,bool is_holding)
     {
+        arm_data[(int)dir2].cmd.grip_pos = is_holding ? 0.0f: arm_data[(int)dir2].parameter.max_grip_position;
         arm_data[(int)dir2].cmd.is_holding = is_holding;
     }
 
@@ -56,6 +57,7 @@ public:
      */
     void setGripPosition(Direction2 dir2,float pos)
     {
+        std::max( 0.0f,std::min(pos,arm_data[(int)dir2].parameter.max_grip_position));
         arm_data[(int)dir2].cmd.grip_pos = pos;
     }
 
@@ -67,6 +69,7 @@ public:
      */
     void setArmAngle(Direction2 dir2,float angle)
     {
+        std::max( 0.0f,std::min(angle,arm_data[(int)dir2].parameter.max_arm_angle));
         arm_data[(int)dir2].cmd.arm_angle = angle;
     }
 
