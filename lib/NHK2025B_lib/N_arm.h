@@ -19,9 +19,10 @@ public:
     float arm_length = 500.0; // [mm]
     float max_grip_effort = 5.0; // [N]
     float max_grip_position = 300.0; // [mm]
+    float initial_grip_position = 0.0; // [mm]
     float max_bend_effort = 10.0; // [N]
     float max_arm_angle = M_PI_2; // [rad]
-    float init_angle = 0; // [rad]
+    float initial_arm_angle = 0; // [rad]
 };
 
 class NHK2025B_Arm{
@@ -45,8 +46,12 @@ public:
      */
     void setHolding(Direction2 dir2,bool is_holding)
     {
-        arm_data[(int)dir2].cmd.grip_pos = is_holding ? 0.0f: arm_data[(int)dir2].parameter.max_grip_position;
         arm_data[(int)dir2].cmd.is_holding = is_holding;
+        if(is_holding){
+            arm_data[(int)dir2].cmd.grip_pos = arm_data[(int)dir2].parameter.initial_grip_position;
+        }else{
+            arm_data[(int)dir2].cmd.grip_pos = arm_data[(int)dir2].parameter.max_grip_position;
+        }
     }
 
     /**
@@ -57,8 +62,13 @@ public:
      */
     void setGripPosition(Direction2 dir2,float pos)
     {
-        std::max( 0.0f,std::min(pos,arm_data[(int)dir2].parameter.max_grip_position));
-        arm_data[(int)dir2].cmd.grip_pos = pos;
+        arm_data[(int)dir2].cmd.grip_pos = std::max(
+            arm_data[(int)dir2].parameter.initial_grip_position,
+            std::min(
+                arm_data[(int)dir2].parameter.max_grip_position,
+                pos
+            )
+        );
     }
 
     /**
@@ -69,8 +79,13 @@ public:
      */
     void setArmAngle(Direction2 dir2,float angle)
     {
-        std::max( 0.0f,std::min(angle,arm_data[(int)dir2].parameter.max_arm_angle));
-        arm_data[(int)dir2].cmd.arm_angle = angle;
+        arm_data[(int)dir2].cmd.arm_angle = std::max(
+            arm_data[(int)dir2].parameter.initial_arm_angle,
+            std::min(
+                arm_data[(int)dir2].parameter.max_arm_angle,
+                angle
+            )
+        );
     }
 
     /**
@@ -105,7 +120,7 @@ public:
      */
     float getGripPosition(Direction2 dir2)
     {
-        return arm_data[(int)dir2].cmd.grip_pos;
+        return arm_data[(int)dir2].output.grip_pos;
     }
 
     /**
@@ -117,7 +132,7 @@ public:
      */
     float getArmAngle(Direction2 dir2)
     {
-        return arm_data[(int)dir2].cmd.arm_angle;
+        return arm_data[(int)dir2].output.arm_angle;
     }
 
     /**
@@ -138,21 +153,26 @@ public:
             arm_data[i].state.distance_to_hand = sin(arm_data[i].cmd.arm_angle) * arm_data[i].parameter.arm_length;
             arm_data[i].state.height_to_hand = cos(arm_data[i].cmd.arm_angle) * arm_data[i].parameter.arm_length;
             if(arm_data[i].cmd.is_holding){
-                arm_data[i].state.grip_pos = arm_data[i].parameter.max_grip_position;
+                arm_data[i].output.grip_pos = arm_data[i].parameter.max_grip_position;
             }else{
-                arm_data[i].state.grip_pos = 0;
+                arm_data[i].output.grip_pos = 0;
             }
+            arm_data[i].output.arm_angle = arm_data[i].cmd.arm_angle;
+            arm_data[i].output.grip_pos = arm_data[i].cmd.grip_pos;
         }
     }
 public:
     struct{
+        struct{
+            float grip_pos;
+            float arm_angle;
+        }output;
         struct{
             bool is_holding;
             float arm_angle;
             float grip_pos;
         }cmd;
         struct{
-            float grip_pos;
             float distance_to_hand;
             float height_to_hand;
         }state;

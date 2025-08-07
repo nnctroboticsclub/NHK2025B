@@ -34,16 +34,20 @@
 #define STEER_MAX_RAD M_PI_4   // [rad]
 #define ARM_MAX_EFFORT 5.0
 
+#define RAD2DEG(rad) (rad / M_PI * 180)
+#define DEG2RAD(deg) (deg * M_PI / 180)
+
 enum class Wheel{
-    FRONT_RIGHT,
-    FRONT_LEFT,
-    BACK_LEFT,
-    BACK_RIGHT
+    FRONT_RIGHT=0,
+    FRONT_LEFT=1,
+    BACK_LEFT=2,
+    BACK_RIGHT=3
 };
 
 enum class TurnDirection
 {
     CCW = 1, // Counter Clock Wise
+    NT = 0, // Not Turning
     CW = -1 // Clock Wise
 };
 

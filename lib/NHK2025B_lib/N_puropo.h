@@ -121,7 +121,7 @@ public:
      * @brief 受信したデータを取得する
      * 
      * @param num プロポの番号 0 <= num < NUM_OF_PUROPO
-     * @param ch 5~6(1~4はスティック)
+     * @param ch 5~9(1~4はスティック)
      * 
      * @return -1.0 ~ 1.0 
      */
