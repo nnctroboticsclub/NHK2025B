@@ -18,9 +18,8 @@ class ArmParameter{
 public:
     float arm_length = 500.0; // [mm]
     float max_grip_effort = 5.0; // [N]
-    float max_grip_position = 300.0; // [mm]
+    float max_grip_position = 150.0; // [rad]
     float initial_grip_position = 0.0; // [mm]
-    float max_bend_effort = 10.0; // [N]
     float max_arm_angle = M_PI_2; // [rad]
     float initial_arm_angle = 0; // [rad]
 };
@@ -152,11 +151,6 @@ public:
         for(int i=0;i<2;i++){
             arm_data[i].state.distance_to_hand = sin(arm_data[i].cmd.arm_angle) * arm_data[i].parameter.arm_length;
             arm_data[i].state.height_to_hand = cos(arm_data[i].cmd.arm_angle) * arm_data[i].parameter.arm_length;
-            if(arm_data[i].cmd.is_holding){
-                arm_data[i].output.grip_pos = arm_data[i].parameter.max_grip_position;
-            }else{
-                arm_data[i].output.grip_pos = 0;
-            }
             arm_data[i].output.arm_angle = arm_data[i].cmd.arm_angle;
             arm_data[i].output.grip_pos = arm_data[i].cmd.grip_pos;
         }

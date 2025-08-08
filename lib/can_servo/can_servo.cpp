@@ -19,6 +19,7 @@ void can_servo::set(int num, uint8_t param)
 int can_servo::send()
 {
     ican->set(csdf.data_array, sizeof(csdf.data_array));
+    ican->set_this_id(0);
     return ican->write(id);
 }
 

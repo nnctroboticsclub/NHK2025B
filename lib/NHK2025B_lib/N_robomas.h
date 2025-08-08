@@ -192,13 +192,25 @@ public:
     }
 
     /**
+     * @brief 累積回転角度を取得する
+     * 
+     * @param num デバイス番号 (0 <= num < NUM_OF_ROBOMAS)
+     * 
+     * @return [rad]
+     */
+    float getAbsAngle(int num)
+    {
+        return robomas_data[num].state.abs_angle;
+    }
+
+    /**
      * @brief 回転速度を取得する
      * 
      * @param num デバイス番号 (0 <= num < NUM_OF_ROBOMAS)
      * 
      * @return [rad/s]
      */
-    float getVeclocity(int num)
+    float getVelocity(int num)
     {
         return robomas_data[num].state.vel;
     }

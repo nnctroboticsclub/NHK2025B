@@ -1,4 +1,5 @@
 #include <mbed.h>
+#include "definitions.h"
 #include "N_PID.h"
 #include "N_puropo.h"
 #include "N_robomas.h"
@@ -25,6 +26,7 @@
 #define CH_H 6
 #define CH_VR 5
 #define STEER_ROBOMAS_OF(x) (x+0)
+#define STEER_SERVO_OF(x) (x+0)
 #define ARM_ROBOMAS_OF(x) (x+4)
 #define ARM_HAND_PID_OF(x) (x+0)
 #define ARM_JOINT_PID_OF(x) (x+2)
@@ -32,58 +34,64 @@
 std::array<RobomasParameter, NUM_OF_ROBOMAS> robomas_params{
     // 右前輪
     []{RobomasParameter p;
-        p.robomas_id = 1, p.type = RobomasParameter::TYPE_OF_M3508, p.ican_ptr = &can1;
+        p.robomas_id = 3, p.type = RobomasParameter::TYPE_OF_M3508, p.ican_ptr = &can2;
         return p;
     }(),
     // 左前輪
     []{RobomasParameter p;
-        p.robomas_id = 2, p.type = RobomasParameter::TYPE_OF_M3508, p.ican_ptr = &can1;
+        p.robomas_id = 4, p.type = RobomasParameter::TYPE_OF_M3508, p.ican_ptr = &can2;
         return p;
     }(),
     // 左後輪
     []{RobomasParameter p;
-        p.robomas_id = 3, p.type = RobomasParameter::TYPE_OF_M3508, p.ican_ptr = &can1;
+        p.robomas_id = 1, p.type = RobomasParameter::TYPE_OF_M3508, p.ican_ptr = &can2;
         return p;
     }(),
     // 右後輪
     []{RobomasParameter p;
-        p.robomas_id = 4, p.type = RobomasParameter::TYPE_OF_M3508, p.ican_ptr = &can1;
+        p.robomas_id = 2, p.type = RobomasParameter::TYPE_OF_M3508, p.ican_ptr = &can2;
         return p;
     }(),
     // 右ハンド
     []{RobomasParameter p;
-        p.robomas_id = 1, p.type = RobomasParameter::TYPE_OF_M2006, p.ican_ptr = &can2;
+        p.robomas_id = 1, p.type = RobomasParameter::TYPE_OF_M2006, p.ican_ptr = &can1;
         return p;
     }(),
     // 左ハンド
     []{RobomasParameter p;
-        p.robomas_id = 2, p.type = RobomasParameter::TYPE_OF_M2006, p.ican_ptr = &can2;
+        p.robomas_id = 2, p.type = RobomasParameter::TYPE_OF_M2006, p.ican_ptr = &can1;
         return p;
     }(),
 };
 
+// サーボのboard_id, ロームのid, ikakoMDCのboard_idはかぶらないようにしてください
 std::array<RohmMdParameter, NUM_OF_ROHM_MD> rohm_params{
     // 右ジョイント
     []{RohmMdParameter p;
-        p.id = 1, p.ican = &can2;
+        p.id = 1, p.ican = &can1;
         return p;
     }(),
     // 左ジョイント
     []{RohmMdParameter p;
-        p.id = 2, p.ican = &can2;
+        p.id = 2, p.ican = &can1;
         return p;
     }(),
 };
 
 std::array<ServoParameter, NUM_OF_SERVO> servo_params{
+    // // 無
+    // []{ServoParameter p;
+    //     p.id = 0, p.board_id = 1, p.ican = &can2;
+    //     return p;
+    // }(),
     // 前ステア
     []{ServoParameter p;
-        p.id = 1, p.board_id = 1, p.ican = &can1;
+        p.id = 1, p.board_id = 8, p.ican = &can2;
         return p;
     }(),
     // 後ステア
     []{ServoParameter p;
-        p.id = 2, p.board_id = 1, p.ican = &can1;
+        p.id = 2, p.board_id = 8, p.ican = &can2;
         return p;
     }()
 };
@@ -91,14 +99,14 @@ std::array<ServoParameter, NUM_OF_SERVO> servo_params{
 std::array<PidParameter, NUM_OF_PID_CONTROLLER> arm_pid_params{
     // ハンド右
     []{PidParameter p;
-        p.kp = 0.05;
-        p.out_max = 0.9;
+        p.kp = 0.005;
+        p.out_max = 5.0;
         return p;
     }(),
     // ハンド左
     []{PidParameter p;
-        p.kp = 0.05;
-        p.out_max = 0.9;
+        p.kp = 0.005;
+        p.out_max = 5.0;
         return p;
     }(),
     // ジョイント右
@@ -118,26 +126,34 @@ std::array<PidParameter, NUM_OF_PID_CONTROLLER> arm_pid_params{
 std::array<PidParameter, NUM_OF_PID_CONTROLLER> steer_robomas_pid_params{
     // 右前輪
     []{PidParameter p;
-        p.kp = 0.05;
-        p.out_max = 0.9;
+        p.kp = 0.2;
+        p.kd = 0.101;
+        // p.reverse = true;
+        p.out_max = 5.0;
         return p;
     }(),
     // 左前輪
     []{PidParameter p;
-        p.kp = 0.05;
-        p.out_max = 0.9;
+        p.kp = 0.2;
+        p.kd = 0.101;
+        // p.reverse = true;
+        p.out_max = 5.0;
         return p;
     }(),
     // 左後輪
     []{PidParameter p;
-        p.kp = 0.05;
-        p.out_max = 0.9;
+        p.kp = 0.2;
+        p.kd = 0.101;
+        // p.reverse = true;
+        p.out_max = 5.0;
         return p;
     }(),
     // 右後輪
     []{PidParameter p;
-        p.kp = 0.05;
-        p.out_max = 0.9;
+        p.kp = 0.2;
+        p.kd = 0.101;
+        // p.reverse = true;
+        p.out_max = 5.0;
         return p;
     }(),
 };
@@ -150,10 +166,12 @@ SteerParameter steer_parameter = []{
 std::array<ArmParameter, NUM_OF_ARM> arm_parameter{
     // 右
     []{ArmParameter p;
+        p.max_grip_position = 300;
         return p;
     }(),
     // 左
     []{ArmParameter p;
+        p.max_grip_position = 300;
         return p;
     }()
 };
@@ -190,6 +208,7 @@ void setup(){
 void update(){
     robomas.update();
     rohm.update();
+    servo.update();
 
     steer.update();
     arm.update();
@@ -204,36 +223,36 @@ void update_1ms(){
     // アームのpidのプロセス値をセット
     arm_pid.setProcessValue(
         ARM_HAND_PID_OF((int)Direction2::RIGHT),
-        arm_qei[(int)Direction2::RIGHT].getAngle()
+        robomas.getAbsAngle(ARM_ROBOMAS_OF((int)Direction2::RIGHT))
     );
     arm_pid.setProcessValue(
         ARM_HAND_PID_OF((int)Direction2::LEFT),
-        arm_qei[(int)Direction2::LEFT].getAngle()
+        robomas.getAbsAngle(ARM_ROBOMAS_OF((int)Direction2::LEFT))
     );
     arm_pid.setProcessValue(
         ARM_JOINT_PID_OF((int)Direction2::RIGHT),
-        robomas.getAngle(ARM_ROBOMAS_OF((int)Direction2::RIGHT))
+        arm_qei[(int)Direction2::RIGHT].getAngle()
     );
     arm_pid.setProcessValue(
         ARM_JOINT_PID_OF((int)Direction2::LEFT), 
-        robomas.getAngle(ARM_ROBOMAS_OF((int)Direction2::LEFT))
+        arm_qei[(int)Direction2::LEFT].getAngle()
     );
     // ステアのpidのプロセス値をセット
     steer_pid.setProcessValue(
         (int)Wheel::FRONT_RIGHT,
-        robomas.getAngle(STEER_ROBOMAS_OF((int)Wheel::FRONT_RIGHT))
+        robomas.getVelocity(STEER_ROBOMAS_OF((int)Wheel::FRONT_RIGHT))
     );
     steer_pid.setProcessValue(
         (int)Wheel::FRONT_LEFT,
-        robomas.getAngle(STEER_ROBOMAS_OF((int)Wheel::FRONT_LEFT))
+        robomas.getVelocity(STEER_ROBOMAS_OF((int)Wheel::FRONT_LEFT))
     );
     steer_pid.setProcessValue(
         (int)Wheel::BACK_LEFT,
-        robomas.getAngle(STEER_ROBOMAS_OF((int)Wheel::BACK_LEFT))
+        robomas.getVelocity(STEER_ROBOMAS_OF((int)Wheel::BACK_LEFT))
     );
     steer_pid.setProcessValue(
         (int)Wheel::BACK_RIGHT,
-        robomas.getAngle(STEER_ROBOMAS_OF((int)Wheel::BACK_RIGHT))
+        robomas.getVelocity(STEER_ROBOMAS_OF((int)Wheel::BACK_RIGHT))
     );
     // pidのアップデート
     arm_pid.update_ts();
@@ -262,33 +281,54 @@ int main(){
     can1.read_start();
     can2.read_start();
     enc_timer.start();
-    int cnt_100ms;
+    int cnt_100ms = 0;
+    float wave = 0.0;
     while(1){
         if(cnt_1ms > 100){
-            printf(">FRomg: %f\n", steer.getOmega(Wheel::FRONT_RIGHT));
-            printf(">FLomg: %f\n", steer.getOmega(Wheel::FRONT_LEFT));
-            printf(">BLomg: %f\n", steer.getOmega(Wheel::BACK_LEFT));
-            printf(">BRomg: %f\n", steer.getOmega(Wheel::BACK_RIGHT));
-            printf(">Fang: %f\n", steer.getAngle(Direction1::FRONT));
-            printf(">Bang: %f\n", steer.getAngle(Direction1::BACK));
+            printf(">FRomg: %0.3f\n", steer.getOmega(Wheel::FRONT_RIGHT));
+            printf(">FLomg: %0.3f\n", steer.getOmega(Wheel::FRONT_LEFT));
+            // printf(">BLomg: %0.3f\n", steer.getOmega(Wheel::BACK_LEFT));
+            // printf(">BRomg: %0.3f\n", steer.getOmega(Wheel::BACK_RIGHT));
+            // printf(">FRreal: %0.3f\n", robomas.getVelocity(STEER_ROBOMAS_OF((int)Wheel::FRONT_RIGHT)));
+            // printf(">FLreal: %0.3f\n", robomas.getVelocity(STEER_ROBOMAS_OF((int)Wheel::FRONT_LEFT)));
+            // printf(">BLreal: %0.3f\n", robomas.getVelocity(STEER_ROBOMAS_OF((int)Wheel::BACK_LEFT)));
+            // printf(">BRreal: %0.3f\n", robomas.getVelocity(STEER_ROBOMAS_OF((int)Wheel::BACK_RIGHT)));
+            // printf(">Fang: %0.3f\n", RAD2DEG(steer.getAngle(Direction1::FRONT)));
+            // printf(">Bang: %0.3f\n", RAD2DEG(steer.getAngle(Direction1::BACK)));
 
-            // printf(">Rang: %f\n", arm.getArmAngle(Direction2::RIGHT));
-            // printf(">Lang: %f\n", arm.getArmAngle(Direction2::LEFT));
-            // printf(">Rpos: %f\n", arm.getArmAngle(Direction2::RIGHT));
-            // printf(">Lpos: %f\n", arm.getArmAngle(Direction2::LEFT));
+            // printf(">Rang: %0.3f\n", arm.getArmAngle(Direction2::RIGHT));
+            // printf(">Lang: %0.3f\n", arm.getArmAngle(Direction2::LEFT));
+            // printf(">Rout: %0.3f\n", arm_pid.getOutput(ARM_JOINT_PID_OF((int)Direction2::RIGHT)));
+            // printf(">RrealAng: %0.3f\n", arm_qei[(int)Direction2::RIGHT].getAngle());
+            // printf(">LrealAng: %0.3f\n", arm_qei[(int)Direction2::LEFT].getAngle());
+            // printf(">Rpos: %0.3f\n", arm.getGripPosition(Direction2::RIGHT));
+            // printf(">Lpos: %0.3f\n", arm.getGripPosition(Direction2::LEFT));
+            // printf(">RrealPos: %0.3f\n", robomas.getAbsAngle(ARM_ROBOMAS_OF((int)Direction2::RIGHT)));
+            // printf(">LrealPos: %0.3f\n", robomas.getAbsAngle(ARM_ROBOMAS_OF((int)Direction2::LEFT)));
+            // can1.print_debug();
+            // can2.print_debug();
             puts("");
-            cnt_1ms = 0;
+            cnt_1ms = cnt_100ms % 5;
             cnt_100ms++;
         }
-        ES = puropo.getCommunicatable(0);
+        wave = sin(cnt_100ms * M_PI / 10.0);
+        ES = puropo.getCommunicatable(0) & (puropo.getAxis(0, CH_F) == -1.0);
         // プロポからそれぞれの値を取得
-        arm.setHolding(
+        // arm.setHolding(
+        //     Direction2::RIGHT,
+        //     puropo.getAxis(0, CH_A)==-1.0
+        // );
+        // arm.setHolding(
+        //     Direction2::LEFT,
+        //     puropo.getAxis(0, CH_A)==-1.0
+        // );
+        arm.setGripPosition(
             Direction2::RIGHT,
-            puropo.getAxis(0, CH_A)==-1.0
+            puropo.getRightY(0) * arm_parameter[(int)Direction2::RIGHT].max_grip_position
         );
-        arm.setHolding(
+        arm.setGripPosition(
             Direction2::LEFT,
-            puropo.getAxis(0, CH_A)==-1.0
+            puropo.getLeftY(0) * arm_parameter[(int)Direction2::RIGHT].max_grip_position
         );
         arm.setArmAngle(
             Direction2::RIGHT,
@@ -381,11 +421,11 @@ int main(){
             steer_pid.getOutput((int)Wheel::BACK_RIGHT)
         );
         servo.setAngle(
-            (int)Direction1::FRONT,
+            STEER_SERVO_OF((int)Direction1::FRONT),
             steer.getAngle(Direction1::FRONT)
         );
         servo.setAngle(
-            (int)Direction1::BACK,
+            STEER_SERVO_OF((int)Direction1::BACK),
             steer.getAngle(Direction1::BACK)
         );
         update();

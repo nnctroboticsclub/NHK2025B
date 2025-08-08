@@ -126,7 +126,7 @@ public:
      * @return -1.0 ~ 1.0 
      */
     float getAxis(int num,int ch){
-        return puropo_data[num].state.axis[ch-4];
+        return puropo_data[num].state.axis[ch-5];
     }
 
     /**

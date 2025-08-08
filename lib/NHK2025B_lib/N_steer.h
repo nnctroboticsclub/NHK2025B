@@ -48,6 +48,7 @@ public:
   float steer_max_angle = DEG2RAD(25); // [rad]
   float servo_initial_angle = DEG2RAD(120); // [rad]
   float max_velocity = 5.0; // [m/s]
+  bool angle_reverse = false;
 };
 
 class NHK2025B_Steer
@@ -214,6 +215,10 @@ public:
   {
     steer_data.state.turning_radius = steer_data.parameter.wheel_base / (sin(steer_data.cmd.turn_angle));
     steer_data.state.diff_velocity = steer_data.cmd.velocity * ((steer_data.parameter.track_width / 2) / steer_data.state.turning_radius);
+    // angle_rev1
+    if(steer_data.parameter.angle_reverse){
+      steer_data.state.diff_velocity *= -1;
+    }
     for(int i=0;i<4;i++){
       steer_data.output.velocity[i] = steer_data.cmd.velocity;
     }
@@ -221,21 +226,47 @@ public:
     steer_data.output.velocity[(int)Wheel::FRONT_LEFT] += steer_data.state.diff_velocity;
     steer_data.output.velocity[(int)Wheel::BACK_LEFT] -= steer_data.state.diff_velocity;
     steer_data.output.velocity[(int)Wheel::BACK_RIGHT] += steer_data.state.diff_velocity;
-    steer_data.output.omega[(int)Wheel::FRONT_RIGHT] = steer_data.output.velocity[(int)Wheel::FRONT_RIGHT] / steer_data.parameter.wheel_radius;
-    steer_data.output.omega[(int)Wheel::FRONT_LEFT] = steer_data.output.velocity[(int)Wheel::FRONT_LEFT] / steer_data.parameter.wheel_radius;
-    steer_data.output.omega[(int)Wheel::BACK_LEFT] = steer_data.output.velocity[(int)Wheel::BACK_LEFT] / steer_data.parameter.wheel_radius;
-    steer_data.output.omega[(int)Wheel::BACK_RIGHT] = steer_data.output.velocity[(int)Wheel::FRONT_RIGHT] / steer_data.parameter.wheel_radius;
+
+    steer_data.output.velocity[(int)Wheel::FRONT_LEFT] = -steer_data.output.velocity[(int)Wheel::FRONT_LEFT];
+    steer_data.output.velocity[(int)Wheel::BACK_LEFT] = -steer_data.output.velocity[(int)Wheel::BACK_LEFT];
+
+    for(int i=0;i<4;i++){
+      steer_data.output.omega[i] = -steer_data.cmd.velocity /steer_data.parameter.wheel_radius;
+    }
+    if(steer_data.parameter.angle_reverse){
+      steer_data.state.diff_omega *= -1;
+    }
+    steer_data.state.diff_omega = -steer_data.state.diff_velocity / steer_data.parameter.wheel_radius;
+    steer_data.output.omega[(int)Wheel::FRONT_RIGHT] -= steer_data.state.diff_omega;
+    steer_data.output.omega[(int)Wheel::FRONT_LEFT] += steer_data.state.diff_omega;
+    steer_data.output.omega[(int)Wheel::BACK_LEFT] -= steer_data.state.diff_omega;
+    steer_data.output.omega[(int)Wheel::BACK_RIGHT] += steer_data.state.diff_omega;
+
+    steer_data.output.omega[(int)Wheel::FRONT_LEFT] = -steer_data.output.omega[(int)Wheel::FRONT_LEFT];
+    steer_data.output.omega[(int)Wheel::BACK_LEFT] = -steer_data.output.omega[(int)Wheel::BACK_LEFT];
+
+    for(int i=0;i<2;i++){
+      steer_data.cmd.turn_angle = -steer_data.cmd.turn_angle;
+      steer_data.cmd.direction = -steer_data.cmd.direction;
+    }
     
     for(int i=0;i<2;i++){
       steer_data.output.angle[i] = steer_data.parameter.servo_initial_angle;
     }
-    if(steer_data.cmd.turn == TurnDirection::NT){
-      steer_data.output.angle[(int)Direction1::FRONT] += steer_data.cmd.direction;
-      steer_data.output.angle[(int)Direction1::BACK] -= steer_data.cmd.direction;
-    }else{
-      steer_data.output.angle[(int)Direction1::FRONT] += steer_data.cmd.turn_angle;
-      steer_data.output.angle[(int)Direction1::BACK] += steer_data.cmd.turn_angle;
+    steer_data.state.direction = steer_data.cmd.direction;
+    steer_data.state.turn_angle = steer_data.cmd.turn_angle;
+    if(steer_data.parameter.angle_reverse){
+      steer_data.state.direction *= -1;
+      steer_data.state.turn_angle *= -1;
     }
+    if(steer_data.cmd.turn == TurnDirection::NT){
+      steer_data.output.angle[(int)Direction1::FRONT] -= steer_data.state.direction;
+      steer_data.output.angle[(int)Direction1::BACK] -= steer_data.state.direction;
+    }else{
+      steer_data.output.angle[(int)Direction1::FRONT] -= steer_data.state.turn_angle;
+      steer_data.output.angle[(int)Direction1::BACK] += steer_data.state.turn_angle;
+    }
+
   }
   /**
    * @brief empty functions
@@ -275,6 +306,9 @@ private:
     struct{
       float turning_radius; // [m]
       float diff_velocity; // [m/s]
+      float diff_omega; // [rad/s]
+      float direction; // [rad]
+      float turn_angle; // [rad]
     }state;
     SteerParameter parameter;
   } steer_data;
