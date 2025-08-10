@@ -85,21 +85,6 @@ private:
 float NHK2025B_PID::calc(int num, float val)
 {
     float e = pid_data[num].cmd.goal_value - (pid_data[num].cmd.process_value = val);
-<<<<<<< HEAD
-
-    float Kp = pid_data[num].parameter.kp;
-    float Ki = pid_data[num].parameter.ki;
-    float Kd = pid_data[num].parameter.kd;
-    float offset = pid_data[num].parameter.offset;
-    bool rev = pid_data[num].parameter.reverse;
-    int &i = pid_data[num].state.i;
-    float &ie = pid_data[num].state.ie;
-    float &prev_error = pid_data[num].state.prev_error;
-    float &output = pid_data[num].state.output;
-    if (!i++)
-        prev_error = e;
-    ie += e + prev_error;
-=======
 
     float Kp = pid_data[num].parameter.kp;
     float Ki = pid_data[num].parameter.ki;
@@ -115,27 +100,18 @@ float NHK2025B_PID::calc(int num, float val)
 
     ie += e + prev_error;
 
->>>>>>> feature/integrate/steer_and_controller
     float ret = offset + Kp * e + Ki * ie + Kd * (e - prev_error);
     prev_error = e;
     output = ret * (rev ? -1.0f : 1.0f);
 
     return pid_data[num].state.output = output;
 }
-<<<<<<< HEAD
-float NHK2025B_PID::getOutput(int num = 0) { return pid_data[num].state.output; }
-
-void NHK2025B_PID::debug(int num = 0, bool b = true) { pid_data[num].cmd.Isdebug = b; }
-
-void NHK2025B_PID::print_debug(int num = 0)
-=======
 
 float NHK2025B_PID::getOutput(int num) { return pid_data[num].state.output; }
 
 void NHK2025B_PID::debug(int num, bool b) { pid_data[num].cmd.Isdebug = b; }
 
 void NHK2025B_PID::print_debug(int num)
->>>>>>> feature/integrate/steer_and_controller
 {
     printf("PID | Kp:%f, Ki:%f, Kd:%f, e:%f -> output:%f\n",
            pid_data[num].parameter.kp,
@@ -152,15 +128,9 @@ void NHK2025B_PID::update_ts()
 }
 
 void NHK2025B_PID::setGoalValue(int num, float val) { pid_data[num].cmd.goal_value = val; }
-<<<<<<< HEAD
-void NHK2025B_PID::setProcessValue(int num, float val) { pid_data[num].cmd.process_value = val; }
-void NHK2025B_PID::setParameter(int num, PidParameter param) { pid_data[num].parameter = param; }
-
-=======
 
 void NHK2025B_PID::setProcessValue(int num, float val) { pid_data[num].cmd.process_value = val; }
 
 void NHK2025B_PID::setParameter(int num, PidParameter param) { pid_data[num].parameter = param; }
 
->>>>>>> feature/integrate/steer_and_controller
 #endif // NHK2025B_PID_H

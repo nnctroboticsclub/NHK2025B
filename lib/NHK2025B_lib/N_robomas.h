@@ -186,7 +186,7 @@ public:
     /**
      * @brief 回転速度を取得する [rad/s]
      */
-    float getVeclocity(int num)
+    float getVelocity(int num)
     {
         return robomas_data[num].state.vel;
     }
@@ -196,14 +196,6 @@ public:
      */
     float getTorque(int num) {
         return robomas_data[num].state.torque;
-    }
-
-    /**
-     * @brief 蓄積した回転角度を取得する[rad]
-     */
-    float getAbsAngle(int num)
-    {
-        return robomas_data[num].state.abs_angle;
     }
 
     /**
