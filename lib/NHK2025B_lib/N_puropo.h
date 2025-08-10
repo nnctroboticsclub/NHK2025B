@@ -14,10 +14,10 @@
 #include "pinconfig.h"
 #include "definitions.h"
 
-#define PUROPO_LEFT_X 4 
+#define PUROPO_LEFT_X 4
 #define PUROPO_LEFT_Y 2
 #define PUROPO_RIGHT_X 1
-#define PUROPO_RIGHT_Y 3 
+#define PUROPO_RIGHT_Y 3
 
 class PuropoParameter{
 public:
@@ -34,7 +34,7 @@ public:
      */
     NHK2025B_Puropo(std::array<PuropoParameter,NUM_OF_PUROPO> param={{PuropoParameter()}}) : puropo1(param[0].tx,param[0].rx)
     #if NUM_OF_PUROPO == 2
-    ,Puropo(param[1].tx,param[1].rx)
+    ,puropo2(pins.PUROPO_TX,pins.PUROPO_RX)
     #endif 
     {
         for(int i=0;i<NUM_OF_PUROPO;i++){

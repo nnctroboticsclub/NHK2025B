@@ -236,6 +236,7 @@ Timer enc_timer;
 QEI qei1(PC_10,PC_11,NC,50,&enc_timer,QEI::X2_ENCODING);
 QEI qei2(PC_12,PD_2,NC,50,&enc_timer,QEI::X2_ENCODING);
 
+// NUM_OF_M2006 = 1
 std::array<RobomasParameter, NUM_OF_ROBOMAS> robomas_params{
     []{RobomasParameter p;
         p.robomas_id = 2, p.type = RobomasParameter::TYPE_OF_M2006, p.ican_ptr = &can1;
@@ -286,6 +287,7 @@ void setup()
 {
     robomas.setup();
     rohm.setup();
+    rohm.setup();
     // puropo.setup();
     // controller.setup();
     arm.setup();
@@ -297,6 +299,7 @@ void setup()
 void update()
 {
     robomas.update();
+    rohm.update();
     rohm.update();
     // puropo.update();
     // controller.update();
@@ -327,6 +330,7 @@ void send_thread()
 
 void print_debug()
 {
+    // robomas.print_debug();
     // robomas.print_debug();
     // puropo.print_debug();
     // can2.print_debug();

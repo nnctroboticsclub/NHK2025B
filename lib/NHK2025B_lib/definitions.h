@@ -16,15 +16,15 @@
 #include "pinconfig.h"
 
 #define NUM_OF_CAN 2
-#define NUM_OF_ROBOMAS_M3508 4 // m3508モータの数
-#define NUM_OF_ROBOMAS_M2006 2 // m2006モータの数
+#define NUM_OF_ROBOMAS_M3508 0 // m3508モータの数
+#define NUM_OF_ROBOMAS_M2006 1 // m2006モータの数
 #define NUM_OF_ROBOMAS (NUM_OF_ROBOMAS_M2006+NUM_OF_ROBOMAS_M3508)
 #define NUM_OF_SERVO 3         // サーボモータの数
 #define NUM_OF_SERVO_BOARD 1   // canサーボ基板の数（1個につきサーボ8個動かせる）
 #define NUM_OF_ROHM_MD 2
 #define NUM_OF_IKAKO_MDC 1
 #define NUM_OF_IKAKO_MD 4
-#define NUM_OF_PUROPO 1 // プロポの数
+#define NUM_OF_PUROPO 2 // プロポの数
 #define NUM_OF_PID_CONTROLLER 4
 #define NUM_OF_ARM 2
 #define CAN_FREQUENCY 1e6 // canの周波数。ロボますモータは1 [MHz]だけど、これまで部内のモジュールは50 [kHz]だから気をつけて
