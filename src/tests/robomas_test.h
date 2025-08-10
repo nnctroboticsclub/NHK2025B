@@ -5,13 +5,14 @@
 DigitalIn button(pins.SW1);
 
 std::array<RobomasParameter, NUM_OF_ROBOMAS> params{
-    []{RobomasParameter p;
+    []
+    {RobomasParameter p;
         p.robomas_id = 3;
-    return p;}(),
-    []{RobomasParameter p;
+    return p; }(),
+    []
+    {RobomasParameter p;
         p.robomas_id = 5,p.type = RobomasParameter::TYPE_OF_M2006,p.ican_ptr = &can2;
-    return p;}()
-};
+    return p; }()};
 
 NHK2025B_Robomas robomas(params);
 Thread thread;
@@ -19,7 +20,7 @@ Ticker ticker;
 
 void send_thread()
 {
-    while(true)
+    while (true)
     {
         robomas.write();
         ThisThread::sleep_for(1ms);
@@ -35,15 +36,15 @@ void update_ts()
 
 void print_debug()
 {
-    // can1.print_debug();
-    robomas.print_debug();
+    can2.print_debug();
+    // robomas.print_debug();
 }
 
 int main()
 {
     robomas.setup();
     thread.start(&send_thread);
-    ticker.attach(&update_ts,1ms);
+    ticker.attach(&update_ts, 1ms);
     can1.read_start();
     can2.read_start();
     DigitalOut myemc(PA_5);
@@ -54,7 +55,8 @@ int main()
     float kp = 0.03;
     float power;
     int cnt_100ms = 0;
-    while(1){
+    while (1)
+    {
         ES = 1;
         myemc = 1;
         if(cnt_1ms > 100){

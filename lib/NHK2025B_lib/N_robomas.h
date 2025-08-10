@@ -57,10 +57,12 @@ public:
             if(robomas_data[i].parameter.type == robomas_data[i].parameter.TYPE_OF_M3508){
                 m3508[m3508_i].set_params(robomas_data[i].parameter.robomas_id);
                 robomas_[i] = &m3508[m3508_i];
+                robomas_data[i].state.gear_ratio = m3508[m3508_i].gear_ratio;
                 printf("%p,%p\n",robomas_[i],&m3508[m3508_i]);
                 m3508_i++;
             }else if(robomas_data[i].parameter.type == robomas_data[i].parameter.TYPE_OF_M2006){
                 m2006[m2006_i].set_params(robomas_data[i].parameter.robomas_id);
+                robomas_data[i].state.gear_ratio = m2006[m2006_i].gear_ratio;
                 robomas_[i] = &m2006[m2006_i];
                 m2006_i++;
             }
@@ -101,7 +103,7 @@ public:
         for(int i=0;i<NUM_OF_ROBOMAS;i++){
             robomas_data[i].state.angle = robomas_[i]->get_angle();
             robomas_data[i].state.torque = robomas_[i]->get_torque();
-            robomas_data[i].state.vel = robomas_[i]->get_vel();
+            robomas_data[i].state.vel = robomas_[i]->get_vel(robomas_data[i].state.gear_ratio);
             if(robomas_data[i].state.vel > 0.5){
                 if(robomas_data[i].state.angle < robomas_data[i].state.pre_angle){
                     robomas_data[i].state.rev++;
@@ -269,7 +271,7 @@ private:
             float angle;
             float vel;
             float torque; // [N]
-
+            float gear_ratio;
         }state;
         RobomasParameter parameter;
     }robomas_data[NUM_OF_ROBOMAS];

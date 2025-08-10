@@ -33,10 +33,10 @@ using namespace std;
 #define SERVO_MAX_DEG 270
 #endif
 #ifndef SERVO_LIMIT_DEG
-#define SERVO_LIMIT_DEG 45
+#define SERVO_LIMIT_DEG 35
 #endif
 #ifndef SERVO_INITIAL_DEG
-#define SERVO_INITIAL_DEG 90
+#define SERVO_INITIAL_DEG 120
 #endif
 
 class NHK2025B_Steer
@@ -75,10 +75,10 @@ public:
    *
    * @param cw -1: turning right, 0: not turning, 1: turning left
    */
-  void setTurn(int cw)
+  void setTurn(int ccw)
   {
-    setDirFront(steer_data.parameter.servo_limit_deg * cw);
-    setDirBack(-steer_data.parameter.servo_limit_deg * cw);
+    setDirFront(steer_data.parameter.servo_limit_deg * ccw);
+    setDirBack(-steer_data.parameter.servo_limit_deg * ccw);
   }
 
   /**
@@ -141,7 +141,8 @@ public:
    * @brief empty functions
    */
   void update() {}
-  void print_debug() {}
+  void print_debug() {
+  }
 
 private:
   struct
@@ -191,7 +192,7 @@ private:
     bool f = abs(dir) > steer_data.parameter.servo_limit_deg;
     if (f)
     {
-      cout << "direction(" << dir << ") is out of range. (current max degree is set to " << steer_data.parameter.servo_limit_deg << ')' << endl;
+      // cout << "direction(" << dir << ") is out of range. (current max degree is set to " << steer_data.parameter.servo_limit_deg << ')' << endl;
       printf("direction(%f) is out of range. (current max degree is set to %d)\n", dir, steer_data.parameter.servo_limit_deg);
     }
     return f;
