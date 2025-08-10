@@ -27,6 +27,7 @@
 #define NUM_OF_PUROPO 2 // プロポの数
 #define NUM_OF_PID_CONTROLLER 4
 #define NUM_OF_ARM 2
+#define NUM_OF_US_SENSOR 2
 #define CAN_FREQUENCY 1e6 // canの周波数。ロボますモータは1 [MHz]だけど、これまで部内のモジュールは50 [kHz]だから気をつけて
 
 #define SERVO_MAX_DEG 270      // サーボモータの最大角度
